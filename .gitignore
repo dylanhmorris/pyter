@@ -1,0 +1,23 @@
+# python
+*.pyc
+__pycache__
+
+# mac os
+.DS_Store
+
+# emacs
+*#*
+*~*
+
+# development / pip
+pyter.egg-info
+venv
+
+*.egg-info
+
+build
+docs/build
+docs/source/generated
+
+demo/*
+demo/demo-data.tsv
