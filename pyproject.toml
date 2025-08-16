@@ -1,13 +1,9 @@
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "PyTer"
+name = "Pyter"
 version = "0.3"
-description = "PyTer: a package for Bayesian inference from virological data"
+description = "Pyter: a package for Bayesian inference from virological data"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 keywords = ["Bayesian", "Bayes", "Numpyro", "Titration", "Plaque", "Virus"]
 license = {text = "BSD 3-Clause License"}
 classifiers = [
@@ -20,5 +16,9 @@ dependencies = [
 "attrs"
 ]
 
-[tool.setuptools.packages.find]
-where = ["src"]  # ["."] by default
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

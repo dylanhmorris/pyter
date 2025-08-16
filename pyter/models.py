@@ -20,30 +20,30 @@ define the stochastic generative process.
 
 """
 
-import numpyro as npro
-from numpy.typing import ArrayLike
-import jax.numpy as jnp
-import jax
-import numpyro.distributions as dist
-import attrs
 import inspect
 
+import attrs
+import jax
+import jax.numpy as jnp
+import numpyro as npro
+import numpyro.distributions as dist
+from numpy.typing import ArrayLike
 from numpyro.handlers import reparam
 from numpyro.infer.reparam import LocScaleReparam
-from pyter.distributions import (TiterPlate,
-                                 PlaquePlate,
-                                 EndpointTiterPlate)
+
 import pyter.data as pdata
+from pyter.distributions import EndpointTiterPlate, PlaquePlate, TiterPlate
 
 
 def well_distribution_factory(
-        assay: str,
-        log_titer: ArrayLike,
-        log_dilution: ArrayLike,
-        log_base: ArrayLike,
-        well_volume: ArrayLike,
-        false_hit_rate: ArrayLike,
-        validate_args: bool = True) -> TiterPlate:
+    assay: str,
+    log_titer: ArrayLike,
+    log_dilution: ArrayLike,
+    log_base: ArrayLike,
+    well_volume: ArrayLike,
+    false_hit_rate: ArrayLike,
+    validate_args: bool = True,
+) -> TiterPlate:
     """
     Get an appropriate distribution for titer wells.
 
@@ -103,55 +103,58 @@ def well_distribution_factory(
 
     """
 
-    assays = {
-        "tcid": EndpointTiterPlate,
-        "pfu": PlaquePlate}
+    assays = {"tcid": EndpointTiterPlate, "pfu": PlaquePlate}
 
     if assay is None:
         raise ValueError("Must specify assay")
 
-    distribution = assays.get(
-        assay, None)
+    distribution = assays.get(assay, None)
 
     if distribution is None:
-        raise ValueError("Unknown or unsupported "
-                         "assay {}.\n\n"
-                         "Supported assays are endpoint titration "
-                         "(set assay = 'tcid') and "
-                         "plaque assay (set assay = 'pfu')"
-                         "".format(assay))
+        raise ValueError(
+            "Unknown or unsupported "
+            "assay {}.\n\n"
+            "Supported assays are endpoint titration "
+            "(set assay = 'tcid') and "
+            "plaque assay (set assay = 'pfu')"
+            "".format(assay)
+        )
     return distribution(
         log_titer=log_titer,
         log_dilution=log_dilution,
         log_base=log_base,
         well_volume=well_volume,
         false_hit_rate=false_hit_rate,
-        validate_args=validate_args)
+        validate_args=validate_args,
+    )
 
 
 def validate_not_instantiated(distribution):
-    if not (inspect.isclass(distribution) and
-            issubclass(distribution, dist.Distribution)):
+    if not (
+        inspect.isclass(distribution)
+        and issubclass(distribution, dist.Distribution)
+    ):
         if isinstance(distribution, dist.Distribution):
             raise ValueError(
                 "Expected a constructor (function) that builds "
                 "numpyro Distributions, got an instantiated "
                 "distribution. Did you type <DistributionName>() "
                 "when you meant <DistributionName> (e.g. "
-                " ``Normal()`` instead of ``Normal``)?")
+                " ``Normal()`` instead of ``Normal``)?"
+            )
         else:
             raise ValueError(
                 "Expected a constructor that builds "
                 "numpyro Distributions, got {}"
-                "".format(distribution))
+                "".format(distribution)
+            )
         pass
     return True
 
 
 def sample_non_hier(
-        param_name: str,
-        param_dim: int,
-        param_prior: dist.Distribution) -> jax.Array:
+    param_name: str, param_dim: int, param_prior: dist.Distribution
+) -> jax.Array:
     """
     Sample a vector of inferred
     parameters whose prior is fixed
@@ -177,22 +180,21 @@ def sample_non_hier(
          The sampled parameter vector.
 
     """
-    param = npro.sample(
-        param_name,
-        param_prior.expand((param_dim,)))
+    param = npro.sample(param_name, param_prior.expand((param_dim,)))
     return param
 
 
 def sample_loc_scale_hier(
-        param_name: str,
-        param_dim: int,
-        n_locs: int,
-        n_scales: int,
-        param_distribution: dist.Distribution,
-        loc_ids: ArrayLike,
-        scale_ids: ArrayLike,
-        loc_prior: dist.Distribution,
-        scale_prior: dist.Distribution) -> jax.Array:
+    param_name: str,
+    param_dim: int,
+    n_locs: int,
+    n_scales: int,
+    param_distribution: dist.Distribution,
+    loc_ids: ArrayLike,
+    scale_ids: ArrayLike,
+    loc_prior: dist.Distribution,
+    scale_prior: dist.Distribution,
+) -> jax.Array:
     """
     Sample a vector of hierarchical inferred
     parameters alongside their inferred
@@ -273,28 +275,24 @@ def sample_loc_scale_hier(
         A sampled vector of parameters.
 
     """
-    param_loc = npro.sample(
-        param_name + "_loc",
-        loc_prior.expand((n_locs,))
-    )
+    param_loc = npro.sample(param_name + "_loc", loc_prior.expand((n_locs,)))
     param_scale = npro.sample(
-        param_name + "_scale",
-        scale_prior.expand((n_scales,))
+        param_name + "_scale", scale_prior.expand((n_scales,))
     )
 
     param = npro.sample(
         param_name,
         param_distribution(
-            loc=param_loc[loc_ids],
-            scale=param_scale[scale_ids]))
+            loc=param_loc[loc_ids], scale=param_scale[scale_ids]
+        ),
+    )
 
     return param
 
 
 def loc_scale_factory(
-        distribution: str,
-        loc: ArrayLike = None,
-        scale: ArrayLike = None) -> dist.Distribution:
+    distribution: str, loc: ArrayLike = None, scale: ArrayLike = None
+) -> dist.Distribution:
     """Factory function for distributions
     with a loc/scale parameterization
 
@@ -316,27 +314,25 @@ def loc_scale_factory(
     distributions = {
         "normal": dist.Normal,
         "cauchy": dist.Cauchy,
-        "studentt": dist.StudentT
+        "studentt": dist.StudentT,
     }
-    dist_pick = distributions.get(distribution,
-                                  None)
+    dist_pick = distributions.get(distribution, None)
     if dist_pick is None:
-        raise ValueError("Unknown or unsupported "
-                         "distribution {}.\n\n"
-                         "Supported distributions: {}"
-                         "".format(
-                             distribution,
-                             [key for key in distributions.keys()]))
-    return dist_pick(
-        loc=loc,
-        scale=scale)
+        raise ValueError(
+            "Unknown or unsupported "
+            "distribution {}.\n\n"
+            "Supported distributions: {}"
+            "".format(distribution, [key for key in distributions.keys()])
+        )
+    return dist_pick(loc=loc, scale=scale)
 
 
 @attrs.define
-class AbstractModel():
+class AbstractModel:
     """
     Abstract base class for Pyter models
     """
+
     reparam_dict: dict = attrs.Factory(dict)
 
     def model(self, data: dict = None):
@@ -355,14 +351,9 @@ class AbstractModel():
 
     def get_reparam(self):
         """ """
-        return reparam(
-            self.model,
-            self.reparam_dict)
+        return reparam(self.model, self.reparam_dict)
 
-    def validate_data(
-            self,
-            data: pdata.AbstractData,
-            run_data: dict):
+    def validate_data(self, data: pdata.AbstractData, run_data: dict):
         """
 
         Parameters
@@ -388,11 +379,11 @@ class TiterModel(AbstractModel):
     """
     Model to infer individual titers independently
     """
+
     log_titer_prior: dist.Distribution = None
     assay: str = "tcid"
 
-    def model(self,
-              data: dict = None):
+    def model(self, data: dict = None):
         """
 
         Parameters
@@ -405,28 +396,26 @@ class TiterModel(AbstractModel):
         """
 
         log_titer = sample_non_hier(
-            "log_titer",
-            data["n_values"]["titer"],
-            self.log_titer_prior)
+            "log_titer", data["n_values"]["titer"], self.log_titer_prior
+        )
 
         wells = npro.sample(
             "well_status",
             well_distribution_factory(
                 assay=self.assay,
-                log_titer=log_titer[
-                    data["well_internal_id_values"]["titer"]],
+                log_titer=log_titer[data["well_internal_id_values"]["titer"]],
                 log_dilution=data["well_dilution"],
                 log_base=data["log_base"],
                 well_volume=data["well_volume"],
                 false_hit_rate=data["false_hit_rate"],
-                validate_args=True),
-            obs=data["well_status"])
+                validate_args=True,
+            ),
+            obs=data["well_status"],
+        )
 
         return wells
 
-    def validate_data(self,
-                      data: pdata.AbstractData,
-                      run_data: dict):
+    def validate_data(self, data: pdata.AbstractData, run_data: dict):
         """
 
         Parameters
@@ -451,8 +440,10 @@ class TiterModel(AbstractModel):
         """
         if not isinstance(data, pdata.TiterData):
             raise ValueError(
-                "Incorrect data type {} for model "
-                "{}".format(type(data), type(self)))
+                "Incorrect data type {} for model {}".format(
+                    type(data), type(self)
+                )
+            )
         return True
 
 
@@ -482,39 +473,42 @@ class HalfLifeModel(AbstractModel):
     were for the samples taken at :math:`t = 1` h,
     :math:`t = 2` h, etc. samples.
     """
+
     assay: str = "tcid"
     halflives_hier: bool = False
     intercepts_hier: bool = False
     titers_overdispersed: bool = False
 
     log_halflife_distribution: dist.Distribution = attrs.Factory(
-        lambda: dist.Normal)
+        lambda: dist.Normal
+    )
     log_halflife_loc_prior: dist.Distribution = None
     log_halflife_scale_prior: dist.Distribution = None
 
     log_intercept_distribution: dist.Distribution = attrs.Factory(
-        lambda: dist.Normal)
+        lambda: dist.Normal
+    )
     log_intercept_loc_prior: dist.Distribution = None
     log_intercept_scale_prior: dist.Distribution = None
 
     log_titer_error_distribution: dist.Distribution = attrs.Factory(
-        lambda: dist.Normal)
+        lambda: dist.Normal
+    )
     log_titer_error_scale_prior: dist.Distribution = None
 
     def __attrs_post_init__(self):
         for condition, param in zip(
-                [self.halflives_hier,
-                 self.intercepts_hier,
-                 self.titers_overdispersed],
-                ["log_halflife",
-                 "log_titer_intercept",
-                 "log_titer"]):
+            [
+                self.halflives_hier,
+                self.intercepts_hier,
+                self.titers_overdispersed,
+            ],
+            ["log_halflife", "log_titer_intercept", "log_titer"],
+        ):
             if condition:
                 self.reparam_dict[param] = LocScaleReparam(0)
 
-    def sample_log_halflife(
-            self,
-            data: dict = None) -> jax.Array:
+    def sample_log_halflife(self, data: dict = None) -> jax.Array:
         """
         Sample log half-life values, either
         from a fixed-parameter prior or hierarchically,
@@ -543,18 +537,18 @@ class HalfLifeModel(AbstractModel):
                 data["halflife_internal_id_values"]["loc"],
                 data["halflife_internal_id_values"]["scale"],
                 self.log_halflife_loc_prior,
-                self.log_halflife_scale_prior)
+                self.log_halflife_scale_prior,
+            )
         else:
             log_halflife = sample_non_hier(
                 "log_halflife",
                 data["n_values"]["halflife"],
-                self.log_halflife_distribution)
+                self.log_halflife_distribution,
+            )
 
         return log_halflife
 
-    def sample_log_titer_intercept(
-            self,
-            data: dict = None) -> jax.Array:
+    def sample_log_titer_intercept(self, data: dict = None) -> jax.Array:
         """
         Sample log intercept (i.e. t = 0) values for the
         modeled titers, either a fixed-parameter prior
@@ -582,18 +576,19 @@ class HalfLifeModel(AbstractModel):
                 data["intercept_internal_id_values"]["loc"],
                 data["intercept_internal_id_values"]["scale"],
                 self.log_intercept_loc_prior,
-                self.log_intercept_scale_prior)
+                self.log_intercept_scale_prior,
+            )
         else:
             log_titer_intercept = sample_non_hier(
                 "log_titer_intercept",
                 data["n_values"]["intercept"],
-                self.log_intercept_distribution)
+                self.log_intercept_distribution,
+            )
         return log_titer_intercept
 
     def sample_log_titer(
-            self,
-            predicted_titer: jax.Array,
-            data: dict = None) -> jax.Array:
+        self, predicted_titer: jax.Array, data: dict = None
+    ) -> jax.Array:
         """
         Sample realized log titer values for the modeled
         titers, either deterministically predicted from
@@ -618,25 +613,20 @@ class HalfLifeModel(AbstractModel):
             log_titer_error_scale = sample_non_hier(
                 "log_titer_error_scale",
                 data["n_values"]["titer_error_scale"],
-                self.log_titer_error_scale_prior)
-            es_id = data["titer_internal_id_values"
-                         ]["titer_error_scale"]
+                self.log_titer_error_scale_prior,
+            )
+            es_id = data["titer_internal_id_values"]["titer_error_scale"]
             log_titer = npro.sample(
                 "log_titer",
                 self.log_titer_error_distribution(
-                    loc=predicted_titer,
-                    scale=log_titer_error_scale[es_id]))
+                    loc=predicted_titer, scale=log_titer_error_scale[es_id]
+                ),
+            )
         else:
-            log_titer = npro.deterministic(
-                "log_titer",
-                predicted_titer)
+            log_titer = npro.deterministic("log_titer", predicted_titer)
         return log_titer
 
-    def model(
-            self,
-            data: dict = None) -> tuple[
-                jax.Array,
-                jax.Array]:
+    def model(self, data: dict = None) -> tuple[jax.Array, jax.Array]:
         """
 
         Parameters
@@ -665,33 +655,26 @@ class HalfLifeModel(AbstractModel):
         # parameter sampling
         ############################
         log_halflife = self.sample_log_halflife(data=data)
-        log_titer_intercept = self.sample_log_titer_intercept(
-            data=data)
+        log_titer_intercept = self.sample_log_titer_intercept(data=data)
 
         ############################
         # deterministic quantities
         # derived from parameters
         ############################
-        halflife = npro.deterministic(
-            "halflife",
-            jnp.exp(log_halflife))
+        halflife = npro.deterministic("halflife", jnp.exp(log_halflife))
         decay_rate = npro.deterministic(
-            "decay_rate",
-            jnp.log(2) /
-            (halflife * jnp.log(data["log_base"])))
+            "decay_rate", jnp.log(2) / (halflife * jnp.log(data["log_base"]))
+        )
         initial_log_titer = npro.deterministic(
-            "initial_log_titer",
-            log_titer_intercept[titer_intercept_id])
+            "initial_log_titer", log_titer_intercept[titer_intercept_id]
+        )
 
         predicted_log_titer = npro.deterministic(
             "predicted_log_titer",
-            initial_log_titer -
-            decay_rate[titer_hl_id] *
-            data["titer_time"])
+            initial_log_titer - decay_rate[titer_hl_id] * data["titer_time"],
+        )
 
-        log_titer = self.sample_log_titer(
-            predicted_log_titer,
-            data=data)
+        log_titer = self.sample_log_titer(predicted_log_titer, data=data)
 
         ############################
         # observation process
@@ -705,15 +688,14 @@ class HalfLifeModel(AbstractModel):
                 log_base=data["log_base"],
                 well_volume=data["well_volume"],
                 false_hit_rate=data["false_hit_rate"],
-                validate_args=True),
-            obs=data["well_status"])
+                validate_args=True,
+            ),
+            obs=data["well_status"],
+        )
 
         return (log_titer, wells)
 
-    def validate_data(
-            self,
-            data: pdata.AbstractData,
-            run_data: dict):
+    def validate_data(self, data: pdata.AbstractData, run_data: dict):
         """
 
         Parameters
@@ -727,14 +709,17 @@ class HalfLifeModel(AbstractModel):
         """
         if not isinstance(data, pdata.HalfLifeData):
             raise ValueError(
-                "Incorrect data type {} for model "
-                "{}".format(type(data), type(self)))
+                "Incorrect data type {} for model {}".format(
+                    type(data), type(self)
+                )
+            )
         pass
 
 
 @attrs.define
 class MultiphaseHalfLifeModel(HalfLifeModel):
     """ """
+
     n_phases: int = 2
     assay: str = "tcid"
     halflives_hier: bool = False
@@ -742,17 +727,20 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
     titers_overdispersed: bool = False
 
     log_halflife_distribution: dist.Distribution = attrs.Factory(
-        lambda: dist.Normal)
+        lambda: dist.Normal
+    )
     log_halflife_loc_prior: dist.Distribution = None
     log_halflife_scale_prior: dist.Distribution = None
 
     log_intercept_distribution: dist.Distribution = attrs.Factory(
-        lambda: dist.Normal)
+        lambda: dist.Normal
+    )
     log_intercept_loc_prior: dist.Distribution = None
     log_intercept_scale_prior: dist.Distribution = None
 
     log_titer_error_distribution: dist.Distribution = attrs.Factory(
-        lambda: dist.Normal)
+        lambda: dist.Normal
+    )
     log_titer_error_scale_prior: dist.Distribution = None
 
     log_halflife_offset_prior: dist.Distribution = None
@@ -760,16 +748,16 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
     def __attrs_post_init__(self):
         if self.n_phases < 2:
-            raise ValueError("Attempt to initialize "
-                             "a multi-phase half-life "
-                             "model with fewer than two "
-                             "phases; use HalfLifeModel"
-                             "for monophasic decay.")
+            raise ValueError(
+                "Attempt to initialize "
+                "a multi-phase half-life "
+                "model with fewer than two "
+                "phases; use HalfLifeModel"
+                "for monophasic decay."
+            )
         super().__attrs_post_init__()
 
-    def sample_log_halflife(
-            self,
-            data: dict = None):
+    def sample_log_halflife(self, data: dict = None):
         """
 
         Parameters
@@ -791,52 +779,50 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
                 data["halflife_internal_id_values"]["loc"],
                 data["halflife_internal_id_values"]["scale"],
                 self.log_halflife_loc_prior,
-                self.log_halflife_scale_prior)
+                self.log_halflife_scale_prior,
+            )
             n_offsets = data["n_values"]["halflife_loc"]
         else:
             log_halflife_first = sample_non_hier(
                 "log_halflife_first",
                 data["n_values"]["halflife"],
-                self.log_halflife_distribution)
+                self.log_halflife_distribution,
+            )
             n_offsets = data["n_values"]["halflife"]
 
         with npro.plate("offsets", n_offsets):
             with npro.plate("phases", self.n_phases - 1):
                 breakpoint_deltas = npro.sample(
-                    "breakpoint_deltas",
-                    self.breakpoint_delta_prior)
+                    "breakpoint_deltas", self.breakpoint_delta_prior
+                )
                 break_times = npro.deterministic(
                     "breakpoint_times",
                     # cumsum columns to get break times
                     # for each experiment
-                    jnp.cumsum(breakpoint_deltas, axis=0)
+                    jnp.cumsum(breakpoint_deltas, axis=0),
                 )
 
                 log_halflife_offsets = npro.sample(
-                    "log_halflife_offsets",
-                    self.log_halflife_offset_prior)
+                    "log_halflife_offsets", self.log_halflife_offset_prior
+                )
                 pass
             pass
 
-        offset_stack = jnp.vstack([
-            jnp.zeros((self.n_phases - 1, n_offsets)),
-            log_halflife_offsets])
+        offset_stack = jnp.vstack(
+            [jnp.zeros((self.n_phases - 1, n_offsets)), log_halflife_offsets]
+        )
 
         if self.halflives_hier:
-            expand_ids = data["halflife_internal_id_values"
-                              ]["loc"]
+            expand_ids = data["halflife_internal_id_values"]["loc"]
             offset_stack = offset_stack[::, expand_ids]
 
         log_halflife = npro.deterministic(
-            "log_halflife",
-            log_halflife_first + offset_stack
+            "log_halflife", log_halflife_first + offset_stack
         )
 
         return log_halflife, break_times
 
-    def model(
-            self,
-            data: dict = None):
+    def model(self, data: dict = None):
         """
 
         Parameters
@@ -850,33 +836,24 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
         """
 
         log_halflife, break_times = self.sample_log_halflife(data=data)
-        log_titer_intercept = self.sample_log_titer_intercept(
-            data=data)
+        log_titer_intercept = self.sample_log_titer_intercept(data=data)
 
-        halflife = npro.deterministic(
-            "halflife",
-            jnp.exp(log_halflife))
+        halflife = npro.deterministic("halflife", jnp.exp(log_halflife))
         decay_rate = npro.deterministic(
-            "decay_rate",
-            jnp.log(2) /
-            (halflife * jnp.log(data["log_base"])))
+            "decay_rate", jnp.log(2) / (halflife * jnp.log(data["log_base"]))
+        )
         # breakpoint_deltas and break_times have
         # shape (n_phases - 1, n_halflives)
         # we add a first row of zeros
         start_times = jnp.vstack(
-            [
-                jnp.zeros_like(break_times[0, ::]),
-                break_times
-            ]
+            [jnp.zeros_like(break_times[0, ::]), break_times]
         )
 
         well_titer_id = data["well_internal_id_values"]["titer"]
         if self.halflives_hier:
-            titer_break_id = data["titer_internal_id_values"
-                                  ]["halflife_loc"]
+            titer_break_id = data["titer_internal_id_values"]["halflife_loc"]
         else:
-            titer_break_id = data["titer_internal_id_values"
-                                  ]["halflife"]
+            titer_break_id = data["titer_internal_id_values"]["halflife"]
 
         # titer_break_times has shape (n_phases - 1, n_titers)
         titer_break_times = break_times[::, titer_break_id]
@@ -886,10 +863,7 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
         # add a titer_time row at the end
         # of titer_break_times
         possible_end_times = jnp.vstack(
-            [
-                titer_break_times,
-                data["titer_time"]
-            ]
+            [titer_break_times, data["titer_time"]]
         )
 
         # cut off each phase at the
@@ -899,7 +873,8 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
         cutoff_end_times = jnp.where(
             possible_end_times < data["titer_time"],
             possible_end_times,
-            data["titer_time"])
+            data["titer_time"],
+        )
 
         # how much time (possibly 0!)
         # did the sample actually
@@ -910,23 +885,21 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
             jnp.where(
                 titer_start_times < cutoff_end_times,
                 cutoff_end_times - titer_start_times,
-                0)
+                0,
+            ),
         )
 
         total_decay = npro.deterministic(
-            "total_decay",
-            jnp.sum(phase_times *
-                    titer_decay_rates, axis=0))
+            "total_decay", jnp.sum(phase_times * titer_decay_rates, axis=0)
+        )
 
         # predicted titer has length
         # n_titers
         predicted_log_titer = npro.deterministic(
-            "predicted_log_titer",
-            log_titer_intercept - total_decay)
+            "predicted_log_titer", log_titer_intercept - total_decay
+        )
 
-        log_titer = self.sample_log_titer(
-            predicted_log_titer,
-            data=data)
+        log_titer = self.sample_log_titer(predicted_log_titer, data=data)
 
         wells = npro.sample(
             "well_status",
@@ -937,7 +910,9 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
                 log_base=data["log_base"],
                 well_volume=data["well_volume"],
                 false_hit_rate=data["false_hit_rate"],
-                validate_args=True),
-            obs=data["well_status"])
+                validate_args=True,
+            ),
+            obs=data["well_status"],
+        )
 
         return (log_titer, wells)

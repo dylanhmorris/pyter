@@ -1,26 +1,24 @@
-Data
-======
+# Pyter Modules
+## Data
+```{eval-rst}
 .. automodule:: pyter.data
     :members:
+```
 
-       
-Distributions
-=============
+## Distributions
+```{eval-rst}
 .. automodule:: pyter.distributions
     :members:
+```
 
-       
-Models
-======
-
-
+## Models
+```{eval-rst}
 .. automodule:: pyter.models
     :members:
+```
 
-       
-Inference
-=========
+## Inference
+```{eval-rst}
 .. automodule:: pyter.infer
     :members:
-
-       
+```

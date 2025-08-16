@@ -1,5 +1,5 @@
-from numpyro.distributions.constraints import Constraint, _SingletonConstraint
 import jax
+from numpyro.distributions.constraints import Constraint, _SingletonConstraint
 
 
 class _GreaterThanOrEqual(Constraint):
@@ -27,8 +27,9 @@ class _GreaterThanOrEqual(Constraint):
         -------
 
         """
-        return jax.numpy.broadcast_to(self.lower_bound,
-                                      jax.numpy.shape(prototype))
+        return jax.numpy.broadcast_to(
+            self.lower_bound, jax.numpy.shape(prototype)
+        )
 
     def tree_flatten(self):
         return (self.lower_bound,), (("lower_bound",), dict())
