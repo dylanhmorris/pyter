@@ -4,17 +4,14 @@
 # description: data structures
 # for pyter inference
 
-import numpy as np
 import attrs
+import numpy as np
 from numpy.typing import ArrayLike
 
 
 def to_internal_ids(
-        external_ids: ArrayLike) -> tuple[
-            np.ndarray,
-            np.ndarray,
-            np.ndarray,
-            int]:
+    external_ids: ArrayLike,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
     """
     Internally index a long tidy
     data frame.
@@ -53,31 +50,32 @@ def to_internal_ids(
 
 
     """
-    (unique_external_ids,
-     internal_ids) = np.unique(
-         external_ids,
-         return_inverse=True)
+    (unique_external_ids, internal_ids) = np.unique(
+        external_ids, return_inverse=True
+    )
 
-    (unique_internal_ids,
-     representative_rows) = np.unique(
-        internal_ids,
-        return_index=True)
+    (unique_internal_ids, representative_rows) = np.unique(
+        internal_ids, return_index=True
+    )
 
     n_values = unique_internal_ids.size
 
-    return (internal_ids,
-            unique_internal_ids,
-            unique_external_ids,
-            representative_rows,
-            n_values)
+    return (
+        internal_ids,
+        unique_internal_ids,
+        unique_external_ids,
+        representative_rows,
+        n_values,
+    )
 
 
 def validate_internal_ids(
-        internal_ids: ArrayLike,
-        unique_internal_ids: ArrayLike,
-        unique_external_ids: ArrayLike,
-        representative_rows: ArrayLike,
-        n_values: int) -> None:
+    internal_ids: ArrayLike,
+    unique_internal_ids: ArrayLike,
+    unique_external_ids: ArrayLike,
+    representative_rows: ArrayLike,
+    n_values: int,
+) -> None:
     """
 
     Parameters
@@ -98,25 +96,28 @@ def validate_internal_ids(
 
     """
 
-    if not all([representative_rows.size == n_values,
-                unique_external_ids.size == n_values]):
+    if not all(
+        [
+            representative_rows.size == n_values,
+            unique_external_ids.size == n_values,
+        ]
+    ):
         raise ValueError("Inconsistent numbers of ids assigned")
     if n_values > 0:
         if not max(internal_ids) == n_values - 1:
             raise ValueError("Missing internal ids")
-        if not np.all(
-                np.sort(unique_internal_ids) ==
-                np.arange(n_values)):
+        if not np.all(np.sort(unique_internal_ids) == np.arange(n_values)):
             raise ValueError("Missing internal_ids")
         pass
     pass
 
 
 def get_associated_internal_ids(
-        key_param: str,
-        value_param: str,
-        internal_id_dict: dict,
-        representative_row_dict: dict) -> np.ndarray:
+    key_param: str,
+    value_param: str,
+    internal_id_dict: dict,
+    representative_row_dict: dict,
+) -> np.ndarray:
     """For example, get internal intercept id
     for each internal titer id
 
@@ -132,17 +133,14 @@ def get_associated_internal_ids(
 
     """
     rows = representative_row_dict[key_param]
-    if (
-            rows.size > 0 and
-            internal_id_dict[value_param].size > 0
-    ):
+    if rows.size > 0 and internal_id_dict[value_param].size > 0:
         return internal_id_dict[value_param][rows]
     else:
         return np.array([])
 
 
 @attrs.define
-class AbstractData():
+class AbstractData:
     """
     Abstract base class for holding data associated
     to Pyter inferential models.
@@ -176,22 +174,21 @@ class AbstractData():
         """
         self.validate()
         self._freeze()
-        return {s: getattr(self, s)
-                for s in self.__slots__
-                if hasattr(self, s)}
+        return {
+            s: getattr(self, s) for s in self.__slots__ if hasattr(self, s)
+        }
 
     def _freeze(self):
-        """
-        """
-        raise NotImplementedError("Abstract class AbstractData"
-                                  "has no _freeze() method")
+        """ """
+        raise NotImplementedError(
+            "Abstract class AbstractDatahas no _freeze() method"
+        )
 
     def validate(self):
-        """
-        """
+        """ """
         raise NotImplementedError(
-            "Abstract class AbstractData"
-            "has no validate() method")
+            "Abstract class AbstractDatahas no validate() method"
+        )
 
 
 @attrs.define
@@ -201,6 +198,7 @@ class NullData(AbstractData):
     take any user-provided data, and
     for testing.
     """
+
     def _freeze(self):
         """
         Null data has no :meth:`_freeze` logic
@@ -225,28 +223,18 @@ class TiterData(AbstractData):
     :class:`Data <AbstractData>` class
     for inference of individual titers.
     """
-    well_status: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_dilution: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_titer_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    log_base: np.ndarray = attrs.Factory(
-        lambda: np.array([10]))
-    well_volume: np.ndarray = attrs.Factory(
-        lambda: np.array([1.0]))
-    false_hit_rate: np.ndarray = attrs.Factory(
-        lambda: np.array([0]))
-    well_internal_id_values: dict = attrs.Factory(
-        dict)
-    unique_internal_ids: dict = attrs.Factory(
-        dict)
-    unique_external_ids: dict = attrs.Factory(
-        dict)
-    id_representative_rows: dict = attrs.Factory(
-        dict)
-    n_values: dict = attrs.Factory(
-        dict)
+
+    well_status: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_dilution: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_titer_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    log_base: np.ndarray = attrs.Factory(lambda: np.array([10]))
+    well_volume: np.ndarray = attrs.Factory(lambda: np.array([1.0]))
+    false_hit_rate: np.ndarray = attrs.Factory(lambda: np.array([0]))
+    well_internal_id_values: dict = attrs.Factory(dict)
+    unique_internal_ids: dict = attrs.Factory(dict)
+    unique_external_ids: dict = attrs.Factory(dict)
+    id_representative_rows: dict = attrs.Factory(dict)
+    n_values: dict = attrs.Factory(dict)
 
     def _freeze(self):
         """
@@ -261,12 +249,13 @@ class TiterData(AbstractData):
         -------
 
         """
-        (self.well_internal_id_values["titer"],
-         self.unique_internal_ids["titer"],
-         self.unique_external_ids["titer"],
-         self.id_representative_rows["titer"],
-         self.n_values["titer"]) = to_internal_ids(
-             self.well_titer_id)
+        (
+            self.well_internal_id_values["titer"],
+            self.unique_internal_ids["titer"],
+            self.unique_external_ids["titer"],
+            self.id_representative_rows["titer"],
+            self.n_values["titer"],
+        ) = to_internal_ids(self.well_titer_id)
 
     def validate(self) -> bool:
         """
@@ -286,34 +275,21 @@ class HalfLifeData(AbstractData):
     for inferring half-life
     of infectious virus
     """
-    well_status: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_dilution: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_time: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_titer_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_titer_error_scale_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_halflife_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_halflife_loc_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_halflife_scale_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_intercept_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_intercept_loc_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    well_intercept_scale_id: np.ndarray = attrs.Factory(
-        lambda: np.array([]))
-    log_base: np.ndarray = attrs.Factory(
-        lambda: np.array([10]))
-    well_volume: np.ndarray = attrs.Factory(
-        lambda: np.array([1.0]))
-    false_hit_rate: np.ndarray = attrs.Factory(
-        lambda: np.array([0]))
+
+    well_status: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_dilution: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_time: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_titer_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_titer_error_scale_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_halflife_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_halflife_loc_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_halflife_scale_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_intercept_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_intercept_loc_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    well_intercept_scale_id: np.ndarray = attrs.Factory(lambda: np.array([]))
+    log_base: np.ndarray = attrs.Factory(lambda: np.array([10]))
+    well_volume: np.ndarray = attrs.Factory(lambda: np.array([1.0]))
+    false_hit_rate: np.ndarray = attrs.Factory(lambda: np.array([0]))
 
     well_internal_id_values: dict = attrs.Factory(dict)
     titer_internal_id_values: dict = attrs.Factory(dict)
@@ -333,31 +309,36 @@ class HalfLifeData(AbstractData):
         for parameters
         """
 
-        for param in ["titer",
-                      "titer_error_scale",
-                      "halflife",
-                      "halflife_loc",
-                      "halflife_scale",
-                      "intercept",
-                      "intercept_loc",
-                      "intercept_scale"]:
-            (self.well_internal_id_values[param],
-             self.unique_internal_ids[param],
-             self.unique_external_ids[param],
-             self.id_representative_rows[param],
-             self.n_values[param]) = to_internal_ids(
-                 self.__getattribute__("well_" + param + "_id"))
+        for param in [
+            "titer",
+            "titer_error_scale",
+            "halflife",
+            "halflife_loc",
+            "halflife_scale",
+            "intercept",
+            "intercept_loc",
+            "intercept_scale",
+        ]:
+            (
+                self.well_internal_id_values[param],
+                self.unique_internal_ids[param],
+                self.unique_external_ids[param],
+                self.id_representative_rows[param],
+                self.n_values[param],
+            ) = to_internal_ids(self.__getattribute__("well_" + param + "_id"))
 
-        for param in ["halflife",
-                      "intercept",
-                      "titer_error_scale",
-                      "halflife_loc"]:
-            self.titer_internal_id_values[param] = (
-                get_associated_internal_ids(
-                    "titer",
-                    param,
-                    self.well_internal_id_values,
-                    self.id_representative_rows))
+        for param in [
+            "halflife",
+            "intercept",
+            "titer_error_scale",
+            "halflife_loc",
+        ]:
+            self.titer_internal_id_values[param] = get_associated_internal_ids(
+                "titer",
+                param,
+                self.well_internal_id_values,
+                self.id_representative_rows,
+            )
 
         for param in ["loc", "scale"]:
             self.halflife_internal_id_values[param] = (
@@ -365,16 +346,19 @@ class HalfLifeData(AbstractData):
                     "halflife",
                     "halflife_" + param,
                     self.well_internal_id_values,
-                    self.id_representative_rows))
+                    self.id_representative_rows,
+                )
+            )
             self.intercept_internal_id_values[param] = (
                 get_associated_internal_ids(
                     "intercept",
                     "intercept_" + param,
                     self.well_internal_id_values,
-                    self.id_representative_rows))
+                    self.id_representative_rows,
+                )
+            )
 
-        self.titer_time = self.well_time[
-            self.id_representative_rows["titer"]]
+        self.titer_time = self.well_time[self.id_representative_rows["titer"]]
 
     def index_prior_parameters(self):
         """

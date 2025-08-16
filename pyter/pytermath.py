@@ -42,28 +42,20 @@ def log1m_exp(x):
     # we get a negative exponent that exceeds
     # the floating point representation
     arr_x = 1.0 * jnp.array(x)
-    oob = arr_x < jnp.log(jnp.finfo(
-        arr_x.dtype).smallest_normal)
+    oob = arr_x < jnp.log(jnp.finfo(arr_x.dtype).smallest_normal)
     mask = arr_x > -0.6931472  # appox -log(2)
     more_val = jnp.log(-jnp.expm1(arr_x))
     less_val = jnp.log1p(-jnp.exp(arr_x))
 
-    return jnp.where(
-        oob,
-        0.,
-        jnp.where(
-            mask,
-            more_val,
-            less_val))
+    return jnp.where(oob, 0.0, jnp.where(mask, more_val, less_val))
 
 
 @log1m_exp.defjvp
 def log1m_exp_jvp(primals, tangents):
-    x, = primals
-    x_dot, = tangents
+    (x,) = primals
+    (x_dot,) = tangents
     ans = log1m_exp(x)
-    ans_dot = x_dot * -1. * jnp.exp(
-        x - ans)
+    ans_dot = x_dot * -1.0 * jnp.exp(x - ans)
     return ans, ans_dot
 
 
@@ -113,10 +105,7 @@ def log1p_exp(x):
     -------
 
     """
-    return jnp.where(
-        x <= 18.0,
-        jnp.log1p(jnp.exp(x)),
-        x + jnp.exp(-x))
+    return jnp.where(x <= 18.0, jnp.log1p(jnp.exp(x)), x + jnp.exp(-x))
 
 
 def log_diff_exp(a, b):
@@ -136,5 +125,4 @@ def log_diff_exp(a, b):
     # of -inf, -inf to be -inf,
     # not nan, because that
     # corresponds to log(0 - 0) = -inf
-    return ((1. * a) + log1m_exp(
-        1. * b - 1. * a))
+    return (1.0 * a) + log1m_exp(1.0 * b - 1.0 * a)

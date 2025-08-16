@@ -5,18 +5,19 @@
 # class that will handle all our
 # inferential tasks in PyTer
 
+import attrs
 import jax
 import numpy as np
-import attrs
-
 from numpyro.infer import MCMC, NUTS
-from pyter.models import AbstractModel
+
 from pyter.data import AbstractData
+from pyter.models import AbstractModel
 
 
 @attrs.define
 class Inference:
     """ """
+
     target_accept_prob: float = 0.8
     max_tree_depth: int = 11
     forward_mode_differentiation: bool = False
@@ -42,14 +43,10 @@ class Inference:
             model,
             target_accept_prob=self.target_accept_prob,
             max_tree_depth=self.max_tree_depth,
-            forward_mode_differentiation=self.forward_mode_differentiation)
+            forward_mode_differentiation=self.forward_mode_differentiation,
+        )
 
-    def new_runner(
-            self,
-            kernel,
-            num_warmup,
-            num_samples,
-            **kwargs):
+    def new_runner(self, kernel, num_warmup, num_samples, **kwargs):
         """
 
         Parameters
@@ -64,19 +61,19 @@ class Inference:
 
         """
         return MCMC(
-            kernel,
-            num_warmup=num_warmup,
-            num_samples=num_samples,
-            **kwargs)
+            kernel, num_warmup=num_warmup, num_samples=num_samples, **kwargs
+        )
 
-    def infer(self,
-              model: AbstractModel = None,
-              data: AbstractData = None,
-              random_seed: int = None,
-              num_warmup: int = 1000,
-              num_samples: int = 1000,
-              validate_data: bool = True,
-              **kwargs):
+    def infer(
+        self,
+        model: AbstractModel = None,
+        data: AbstractData = None,
+        random_seed: int = None,
+        num_warmup: int = 1000,
+        num_samples: int = 1000,
+        validate_data: bool = True,
+        **kwargs,
+    ):
         """Conduct inference.
 
         Draw posterior samples from the
@@ -105,13 +102,10 @@ class Inference:
 
         """
         self.run_model = model
-        self.kernel = self.new_kernel(
-            self.run_model.get_reparam())
+        self.kernel = self.new_kernel(self.run_model.get_reparam())
         self.mcmc_runner = self.new_runner(
-            self.kernel,
-            num_warmup,
-            num_samples,
-            **kwargs)
+            self.kernel, num_warmup, num_samples, **kwargs
+        )
 
         if random_seed is None:
             random_seed = np.random.randint(0, 100000)
@@ -122,10 +116,6 @@ class Inference:
         self.run_data = data.freeze()
 
         if validate_data:
-            self.run_model.validate_data(
-                data,
-                self.run_data)
+            self.run_model.validate_data(data, self.run_data)
 
-        self.mcmc_runner.run(
-            self.run_rng_key,
-            data=self.run_data)
+        self.mcmc_runner.run(self.run_rng_key, data=self.run_data)

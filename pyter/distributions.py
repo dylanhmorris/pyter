@@ -11,14 +11,11 @@ which we will refer to simply as class
 :class:`~numpyro.distributions.distribution.Distribution`.
 """
 
-import numpyro as npro
 import jax.numpy as jnp
+import numpyro as npro
 from jax import lax
 from numpyro.distributions import constraints
-from numpyro.distributions.util import (
-    validate_sample,
-    promote_shapes
-)
+from numpyro.distributions.util import promote_shapes, validate_sample
 from numpyro.util import is_prng_key
 
 import pyter.constraints as pyterconstraints
@@ -49,25 +46,19 @@ class PoissonSingleHit(npro.distributions.Distribution):
         The rate of the Poisson random variable.
     """
 
-    arg_constraints = {
-        "rate": pyterconstraints.nonnegative}
+    arg_constraints = {"rate": pyterconstraints.nonnegative}
 
     support = constraints.boolean
 
-    def __init__(self,
-                 rate=0,
-                 validate_args=None):
-
+    def __init__(self, rate=0, validate_args=None):
         self.rate = rate
         batch_shape = jnp.shape(self.rate)
 
         self.bernoulli_ = npro.distributions.Bernoulli(
-            probs=1 - jnp.exp(-self.rate),
-            validate_args=True)
+            probs=1 - jnp.exp(-self.rate), validate_args=True
+        )
 
-        super().__init__(
-            batch_shape=batch_shape,
-            validate_args=validate_args)
+        super().__init__(batch_shape=batch_shape, validate_args=validate_args)
 
     def sample(self, key, sample_shape=()):
         """
@@ -82,9 +73,7 @@ class PoissonSingleHit(npro.distributions.Distribution):
 
         """
         assert is_prng_key(key)
-        return self.bernoulli_.sample(
-            key,
-            sample_shape=sample_shape)
+        return self.bernoulli_.sample(key, sample_shape=sample_shape)
 
     @validate_sample
     def log_prob(self, value):
@@ -110,41 +99,43 @@ class TiterPlate(npro.distributions.Distribution):
     and :class:`EndpointTiterPlate` for
     endpoint titration assays.
     """
+
     arg_constraints = {
         "log_titer": constraints.real,
         "log_dilution": constraints.real,
         "log_base": constraints.positive,
         "well_volume": constraints.positive,
-        "false_hit_rate": pyterconstraints.nonnegative
+        "false_hit_rate": pyterconstraints.nonnegative,
     }
 
-    def __init__(self,
-                 log_titer=None,
-                 log_dilution=None,
-                 log_base=10,
-                 well_volume=1,
-                 false_hit_rate=0,
-                 validate_args=None):
-        (self.log_titer,
-         self.log_dilution,
-         self.log_base,
-         self.well_volume,
-         self.false_hit_rate) = promote_shapes(
-             log_titer,
-             log_dilution,
-             log_base,
-             well_volume,
-             false_hit_rate)
+    def __init__(
+        self,
+        log_titer=None,
+        log_dilution=None,
+        log_base=10,
+        well_volume=1,
+        false_hit_rate=0,
+        validate_args=None,
+    ):
+        (
+            self.log_titer,
+            self.log_dilution,
+            self.log_base,
+            self.well_volume,
+            self.false_hit_rate,
+        ) = promote_shapes(
+            log_titer, log_dilution, log_base, well_volume, false_hit_rate
+        )
 
         batch_shape = lax.broadcast_shapes(
             jnp.shape(self.log_titer),
             jnp.shape(self.log_dilution),
             jnp.shape(self.log_base),
             jnp.shape(self.well_volume),
-            jnp.shape(self.false_hit_rate))
+            jnp.shape(self.false_hit_rate),
+        )
 
-        super().__init__(validate_args=validate_args,
-                         batch_shape=batch_shape)
+        super().__init__(validate_args=validate_args, batch_shape=batch_shape)
 
 
 class PlaquePlate(TiterPlate):
@@ -157,18 +148,13 @@ class PlaquePlate(TiterPlate):
     support = constraints.nonnegative_integer
 
     def __init__(self, **kwargs):
-
         super().__init__(**kwargs)
 
-        self.hit_rate = (
-            self.false_hit_rate +
-            self.well_volume * jnp.exp(
-                jnp.log(self.log_base) *
-                (self.log_titer + self.log_dilution))
+        self.hit_rate = self.false_hit_rate + self.well_volume * jnp.exp(
+            jnp.log(self.log_base) * (self.log_titer + self.log_dilution)
         )
 
-        self.poisson_ = npro.distributions.Poisson(
-            rate=self.hit_rate)
+        self.poisson_ = npro.distributions.Poisson(rate=self.hit_rate)
 
     def sample(self, key, sample_shape=()):
         """
@@ -185,9 +171,7 @@ class PlaquePlate(TiterPlate):
 
         """
         assert is_prng_key(key)
-        return self.poisson_.sample(
-            key,
-            sample_shape=sample_shape)
+        return self.poisson_.sample(key, sample_shape=sample_shape)
 
     @validate_sample
     def log_prob(self, value):
@@ -217,16 +201,15 @@ class EndpointTiterPlate(TiterPlate):
         super().__init__(**kwargs)
 
         self.single_hit_rate = (
-            self.false_hit_rate +
-            self.well_volume *
-            jnp.log(2) *  # convert id50 to hit units
-            jnp.exp(
-                jnp.log(self.log_base) *
-                (self.log_titer + self.log_dilution))
+            self.false_hit_rate
+            + self.well_volume
+            * jnp.log(2)
+            * jnp.exp(  # convert id50 to hit units
+                jnp.log(self.log_base) * (self.log_titer + self.log_dilution)
+            )
         )
 
-        self.single_hit_ = PoissonSingleHit(
-            rate=self.single_hit_rate)
+        self.single_hit_ = PoissonSingleHit(rate=self.single_hit_rate)
 
     def sample(self, key, sample_shape=()):
         """
@@ -243,9 +226,7 @@ class EndpointTiterPlate(TiterPlate):
 
         """
         assert is_prng_key(key)
-        return self.single_hit_.sample(
-            key,
-            sample_shape=sample_shape)
+        return self.single_hit_.sample(key, sample_shape=sample_shape)
 
     @validate_sample
     def log_prob(self, value):
