@@ -129,7 +129,8 @@ def well_distribution_factory(
 
 def validate_not_instantiated(distribution):
     if not (
-        inspect.isclass(distribution) and issubclass(distribution, dist.Distribution)
+        inspect.isclass(distribution)
+        and issubclass(distribution, dist.Distribution)
     ):
         if isinstance(distribution, dist.Distribution):
             raise ValueError(
@@ -273,11 +274,15 @@ def sample_loc_scale_hier(
 
     """
     param_loc = npro.sample(param_name + "_loc", loc_prior.expand((n_locs,)))
-    param_scale = npro.sample(param_name + "_scale", scale_prior.expand((n_scales,)))
+    param_scale = npro.sample(
+        param_name + "_scale", scale_prior.expand((n_scales,))
+    )
 
     param = npro.sample(
         param_name,
-        param_distribution(loc=param_loc[loc_ids], scale=param_scale[scale_ids]),
+        param_distribution(
+            loc=param_loc[loc_ids], scale=param_scale[scale_ids]
+        ),
     )
 
     return param
@@ -433,7 +438,9 @@ class TiterModel(AbstractModel):
         """
         if not isinstance(data, pdata.TiterData):
             raise ValueError(
-                "Incorrect data type {} for model {}".format(type(data), type(self))
+                "Incorrect data type {} for model {}".format(
+                    type(data), type(self)
+                )
             )
         return True
 
@@ -470,15 +477,21 @@ class HalfLifeModel(AbstractModel):
     intercepts_hier: bool = False
     titers_overdispersed: bool = False
 
-    log_halflife_distribution: dist.Distribution = attrs.Factory(lambda: dist.Normal)
+    log_halflife_distribution: dist.Distribution = attrs.Factory(
+        lambda: dist.Normal
+    )
     log_halflife_loc_prior: dist.Distribution = None
     log_halflife_scale_prior: dist.Distribution = None
 
-    log_intercept_distribution: dist.Distribution = attrs.Factory(lambda: dist.Normal)
+    log_intercept_distribution: dist.Distribution = attrs.Factory(
+        lambda: dist.Normal
+    )
     log_intercept_loc_prior: dist.Distribution = None
     log_intercept_scale_prior: dist.Distribution = None
 
-    log_titer_error_distribution: dist.Distribution = attrs.Factory(lambda: dist.Normal)
+    log_titer_error_distribution: dist.Distribution = attrs.Factory(
+        lambda: dist.Normal
+    )
     log_titer_error_scale_prior: dist.Distribution = None
 
     def __attrs_post_init__(self):
@@ -685,7 +698,9 @@ class HalfLifeModel(AbstractModel):
         """
         if not isinstance(data, pdata.HalfLifeData):
             raise ValueError(
-                "Incorrect data type {} for model {}".format(type(data), type(self))
+                "Incorrect data type {} for model {}".format(
+                    type(data), type(self)
+                )
             )
         pass
 
@@ -700,15 +715,21 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
     intercepts_hier: bool = False
     titers_overdispersed: bool = False
 
-    log_halflife_distribution: dist.Distribution = attrs.Factory(lambda: dist.Normal)
+    log_halflife_distribution: dist.Distribution = attrs.Factory(
+        lambda: dist.Normal
+    )
     log_halflife_loc_prior: dist.Distribution = None
     log_halflife_scale_prior: dist.Distribution = None
 
-    log_intercept_distribution: dist.Distribution = attrs.Factory(lambda: dist.Normal)
+    log_intercept_distribution: dist.Distribution = attrs.Factory(
+        lambda: dist.Normal
+    )
     log_intercept_loc_prior: dist.Distribution = None
     log_intercept_scale_prior: dist.Distribution = None
 
-    log_titer_error_distribution: dist.Distribution = attrs.Factory(lambda: dist.Normal)
+    log_titer_error_distribution: dist.Distribution = attrs.Factory(
+        lambda: dist.Normal
+    )
     log_titer_error_scale_prior: dist.Distribution = None
 
     log_halflife_offset_prior: dist.Distribution = None
@@ -813,7 +834,9 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
         # breakpoint_deltas and break_times have
         # shape (n_phases - 1, n_halflives)
         # we add a first row of zeros
-        start_times = jnp.vstack([jnp.zeros_like(break_times[0, ::]), break_times])
+        start_times = jnp.vstack(
+            [jnp.zeros_like(break_times[0, ::]), break_times]
+        )
 
         well_titer_id = data["well_internal_id_values"]["titer"]
         if self.halflives_hier:
@@ -828,7 +851,9 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
         # add a titer_time row at the end
         # of titer_break_times
-        possible_end_times = jnp.vstack([titer_break_times, data["titer_time"]])
+        possible_end_times = jnp.vstack(
+            [titer_break_times, data["titer_time"]]
+        )
 
         # cut off each phase at the
         # end of the phase or the

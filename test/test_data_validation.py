@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from pyter.data import HalfLifeData, TiterData
-from pyter.models import TiterModel, HalfLifeModel
+from pyter.models import HalfLifeModel, TiterModel
 
 
 @pytest.mark.parametrize(

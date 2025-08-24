@@ -50,7 +50,9 @@ def to_internal_ids(
 
 
     """
-    (unique_external_ids, internal_ids) = np.unique(external_ids, return_inverse=True)
+    (unique_external_ids, internal_ids) = np.unique(
+        external_ids, return_inverse=True
+    )
 
     (unique_internal_ids, representative_rows) = np.unique(
         internal_ids, return_index=True
@@ -172,15 +174,21 @@ class AbstractData:
         """
         self.validate()
         self._freeze()
-        return {s: getattr(self, s) for s in self.__slots__ if hasattr(self, s)}
+        return {
+            s: getattr(self, s) for s in self.__slots__ if hasattr(self, s)
+        }
 
     def _freeze(self):
         """ """
-        raise NotImplementedError("Abstract class AbstractDatahas no _freeze() method")
+        raise NotImplementedError(
+            "Abstract class AbstractDatahas no _freeze() method"
+        )
 
     def validate(self):
         """ """
-        raise NotImplementedError("Abstract class AbstractDatahas no validate() method")
+        raise NotImplementedError(
+            "Abstract class AbstractDatahas no validate() method"
+        )
 
 
 @attrs.define
@@ -334,17 +342,21 @@ class HalfLifeData(AbstractData):
             )
 
         for param in ["loc", "scale"]:
-            self.halflife_internal_id_values[param] = get_associated_internal_ids(
-                "halflife",
-                "halflife_" + param,
-                self.well_internal_id_values,
-                self.id_representative_rows,
+            self.halflife_internal_id_values[param] = (
+                get_associated_internal_ids(
+                    "halflife",
+                    "halflife_" + param,
+                    self.well_internal_id_values,
+                    self.id_representative_rows,
+                )
             )
-            self.intercept_internal_id_values[param] = get_associated_internal_ids(
-                "intercept",
-                "intercept_" + param,
-                self.well_internal_id_values,
-                self.id_representative_rows,
+            self.intercept_internal_id_values[param] = (
+                get_associated_internal_ids(
+                    "intercept",
+                    "intercept_" + param,
+                    self.well_internal_id_values,
+                    self.id_representative_rows,
+                )
             )
 
         self.titer_time = self.well_time[self.id_representative_rows["titer"]]
