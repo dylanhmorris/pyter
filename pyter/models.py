@@ -646,7 +646,6 @@ class HalfLifeModel(AbstractModel):
         initial_log_titer = npro.deterministic(
             "initial_log_titer", log_titer_intercept[titer_intercept_id]
         )
-
         predicted_log_titer = npro.deterministic(
             "predicted_log_titer",
             initial_log_titer
