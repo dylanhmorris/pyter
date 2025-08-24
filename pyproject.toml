@@ -10,10 +10,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-"numpy",
-"jax",
-"numpyro",
-"attrs"
+    "numpy",
+    "jax",
+    "numpyro",
+    "attrs",
 ]
 
 [tool.hatch.metadata]

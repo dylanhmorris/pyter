@@ -290,6 +290,7 @@ class HalfLifeData(AbstractData):
     log_base: np.ndarray = attrs.Factory(lambda: np.array([10]))
     well_volume: np.ndarray = attrs.Factory(lambda: np.array([1.0]))
     false_hit_rate: np.ndarray = attrs.Factory(lambda: np.array([0]))
+    log_titer_change_other: np.ndarray = attrs.Factory(lambda: np.array([0]))
 
     well_internal_id_values: dict = attrs.Factory(dict)
     titer_internal_id_values: dict = attrs.Factory(dict)

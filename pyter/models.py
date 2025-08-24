@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 The :mod:`~pyter.models` module provides
 flexible model classes to represent
@@ -626,14 +624,15 @@ class HalfLifeModel(AbstractModel):
             log_titer = npro.deterministic("log_titer", predicted_titer)
         return log_titer
 
-    def model(self, data: dict = None) -> tuple[jax.Array, jax.Array]:
+    def model(self, data: dict | None = None) -> tuple[jax.Array, jax.Array]:
         """
 
         Parameters
         ----------
         data : :class:`dict`
             Dictionary of data with which to fit the model.
-            Defaults to :py:data:`None`.
+            Defaults to :py:data:`None`, in which case an
+            empty dictionary is used.
 
         Returns
         -------
@@ -643,24 +642,16 @@ class HalfLifeModel(AbstractModel):
             titer values and sampled
             well statuses / plaque counts.
         """
+        if data is None:
+            data = {}
 
-        ############################
-        # indexing
-        ############################
         well_titer_id = data["well_internal_id_values"]["titer"]
         titer_hl_id = data["titer_internal_id_values"]["halflife"]
         titer_intercept_id = data["titer_internal_id_values"]["intercept"]
 
-        ############################
-        # parameter sampling
-        ############################
         log_halflife = self.sample_log_halflife(data=data)
         log_titer_intercept = self.sample_log_titer_intercept(data=data)
 
-        ############################
-        # deterministic quantities
-        # derived from parameters
-        ############################
         halflife = npro.deterministic("halflife", jnp.exp(log_halflife))
         decay_rate = npro.deterministic(
             "decay_rate", jnp.log(2) / (halflife * jnp.log(data["log_base"]))
@@ -668,17 +659,15 @@ class HalfLifeModel(AbstractModel):
         initial_log_titer = npro.deterministic(
             "initial_log_titer", log_titer_intercept[titer_intercept_id]
         )
-
         predicted_log_titer = npro.deterministic(
             "predicted_log_titer",
-            initial_log_titer - decay_rate[titer_hl_id] * data["titer_time"],
+            initial_log_titer
+            - decay_rate[titer_hl_id] * data["titer_time"]
+            + data["log_titer_change_other"],
         )
 
         log_titer = self.sample_log_titer(predicted_log_titer, data=data)
 
-        ############################
-        # observation process
-        ############################
         wells = npro.sample(
             "well_status",
             well_distribution_factory(
