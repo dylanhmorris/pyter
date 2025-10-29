@@ -40,11 +40,11 @@ from pyter.models import HalfLifeModel
 )
 @pytest.mark.parametrize(
     "known_change_vec",
-    [np.array([-1.5, 15.5, 2.6431]), np.array([-0.352]), 0, None],
+    [np.array([-1.5, 1.5, 2.6431, -3.322]), np.array([-0.352]), 0, None],
 )
 def test_non_inactivation_change(data, known_change_vec):
     """
-    Test that the log_titer_change_other argument
+    Test that the log_well_change_other argument
     works as expected for modeling known change in
     titers due to factors other than inactivation.
     """
@@ -57,7 +57,7 @@ def test_non_inactivation_change(data, known_change_vec):
     with seed(rng_seed=5):
         if known_change_vec is not None:
             data_change = copy.deepcopy(data)
-            data_change.log_titer_change_other = known_change_vec
+            data_change.log_well_change_other = known_change_vec
         else:
             data_change = data
         sim_titers_change, sim_wells_change = model.model(
@@ -65,11 +65,12 @@ def test_non_inactivation_change(data, known_change_vec):
         )
     assert all((sim_wells == 0) | (sim_wells == 1))
     assert all((sim_wells_change == 0) | (sim_wells_change == 1))
-    if known_change_vec is not None:
-        assert all(sim_titers + known_change_vec == sim_titers_change)
-        assert not any(
-            sim_titers + known_change_vec + 0.52 == sim_titers_change
-        )
+    if known_change_vec is None:
+        expected_change = 0
     else:
-        assert all(sim_titers == sim_titers_change)
-        assert not any(sim_titers + 0.52 == sim_titers_change)
+        expected_change = np.broadcast_to(
+            known_change_vec,
+            data_change.well_internal_id_values["titer"].shape,
+        )[data_change.id_representative_rows["titer"]]
+    assert all(sim_titers + expected_change == sim_titers_change)
+    assert not any(sim_titers + expected_change + 0.52 == sim_titers_change)
