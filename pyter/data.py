@@ -290,7 +290,7 @@ class HalfLifeData(AbstractData):
     log_base: np.ndarray = attrs.Factory(lambda: np.array([10]))
     well_volume: np.ndarray = attrs.Factory(lambda: np.array([1.0]))
     false_hit_rate: np.ndarray = attrs.Factory(lambda: np.array([0]))
-    log_titer_change_other: np.ndarray = attrs.Factory(lambda: np.array([0]))
+    log_well_change_other: np.ndarray = attrs.Factory(lambda: np.array([0]))
 
     well_internal_id_values: dict = attrs.Factory(dict)
     titer_internal_id_values: dict = attrs.Factory(dict)
@@ -302,7 +302,8 @@ class HalfLifeData(AbstractData):
     id_representative_rows: dict = attrs.Factory(dict)
     n_values: dict = attrs.Factory(dict)
 
-    titer_time: np.ndarray = None
+    titer_time: np.ndarray | None = None
+    log_titer_change_other: np.ndarray | None = None
 
     def update_internal_ids(self):
         """
@@ -360,6 +361,10 @@ class HalfLifeData(AbstractData):
             )
 
         self.titer_time = self.well_time[self.id_representative_rows["titer"]]
+        self.log_titer_change_other = np.broadcast_to(
+            self.log_well_change_other,
+            self.well_internal_id_values["titer"].shape,
+        )[self.id_representative_rows["titer"]]
 
     def index_prior_parameters(self):
         """
