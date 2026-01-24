@@ -16,6 +16,7 @@ venv
 *.egg-info
 
 build
+site
 docs/build
 docs/source/generated
 

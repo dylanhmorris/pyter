@@ -1,0 +1,3 @@
+# Infer
+
+::: pyter.infer

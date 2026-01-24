@@ -1,1 +1,50 @@
-site_name: My Docs
+site_name: "Pyter"
+repo_url: "https://github.com/dylanhmorris/pyter"
+
+theme:
+  name: "material"
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - content.tooltips
+    - content.code.copy
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search:
+  - autorefs:
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            annotations_path: "brief"
+            docstring_style: "numpy"
+            scoped_crossrefs: true
+            # not yet available in free public release
+            line_length: 80
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            merge_init_into_class: true
+
+          paths: ["."]
+          inventories:
+            - url: "https://docs.python.org/3/objects.inv"
+            - url: "https://numpy.org/doc/stable/objects.inv"
+            - url: "https://num.pyro.ai/en/stable/objects.inv"
+            - url: "https://docs.jax.dev/en/latest/objects.inv"
+
+      enable_inventory: true
+
+markdown_extensions:
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true

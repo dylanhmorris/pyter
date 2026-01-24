@@ -1,17 +1,8 @@
-# Welcome to MkDocs
+# About Pyter
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Pyter is an open-source [Python](https://www.python.org/) package for analyzing virological data. It allows for flexible [Bayesian inference](https://xcelab.net/rm/statistical-rethinking/) of virus titers and virus environmental halflives from raw data on cell infection. Both endpoint titration and plaque assays are supported.
 
-## Commands
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+Pyter is designed to be fairly plug-and-play for the scientist who has a relatively standard problem but is a novice coder, but the API also permits a more experienced user to build their own custom models without reinventing the wheel.
 
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+PyTer uses [Numpyro](https://pyro.ai/numpyro/) to specify models and perform inference from them.
