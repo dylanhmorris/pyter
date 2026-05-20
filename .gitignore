@@ -22,5 +22,7 @@ docs/source/generated
 demo/*
 demo/demo-data.tsv
 
+site/**
+
 # poetry lockfile
 poetry.lock
