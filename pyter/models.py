@@ -1,19 +1,18 @@
 """
-The :mod:`~pyter.models` module provides
+The [`models`][pyter.models] module provides
 flexible model classes to represent
 distinct experimental setups.
 
-The :class:`AbstractModel` base class
-serves as a template for :class:`Model`
+The [`AbstractModel`][AbstractModel] base class
+serves as a template for [`Model`][Model]
 subclasses that represent different
 possible experimental setups with different
 inferred quantities of interest.
 
-The core of any :class:`Model` subclass is
-the :meth:`~pyter.models.AbstractModel.model`
+The core of any [`Model`][Model] subclass is
+the [`model`][pyter.models.AbstractModel.model]
 method, which takes in a data dictionary
-and makes calls to :func:`numpyro.sample()
-<numpyro.primitives.sample>` to
+and makes calls to [`numpyro.sample()`][numpyro.primitives.sample] to
 define the stochastic generative process.
 
 """
@@ -50,16 +49,16 @@ def well_distribution_factory(
 
     Parameters
     ----------
-    assay : :class:`str` = {'pfu', 'tcid'}
+    assay : [`str`][str] = {'pfu', 'tcid'}
         Which titration assay to use. Options are
         ``'pfu'``--plaque assay--and
         ``'tcid'``--endpoint titration assay.
 
-    log_titer : :data:`~numpy.typing.ArrayLike`
+    log_titer : [`ArrayLike`][numpy.typing.ArrayLike]
         Underlying log titer(s) per unit volume in
         the undilute sample(s).
 
-    log_dilution : :data:`~numpy.typing.ArrayLike`
+    log_dilution : [`ArrayLike`][numpy.typing.ArrayLike]
         Log dilution(s) relative to the original
         sample(s) for each well's inoculum.
 
@@ -68,7 +67,7 @@ def well_distribution_factory(
         quantities including titer and
         dilution (e.g. e, 2, 10, etc).
 
-    well_volume : :data:`~numpy.typing.ArrayLike`
+    well_volume : [`ArrayLike`][numpy.typing.ArrayLike]
         Volume of the inoculum delivered to
         each well, in the same units as the
         per unit volume for the ``log_titer``
@@ -76,24 +75,24 @@ def well_distribution_factory(
         mL, this is the volume of inoculum
         in mL.
 
-    false_hit_rate : :data:`~numpy.typing.ArrayLike`
+    false_hit_rate : [`ArrayLike`][numpy.typing.ArrayLike]
         Rate (mean number per well)
         of false hits (i.e. rate of apparent
         infection with a sample containing
         no infectious material).
 
-    validate_args : :class:`bool`
+    validate_args : [`bool`][bool]
         Passed to the
-        :class:`~numpyro.distributions.distribution.Distribution`
+        [`Distribution`][numpyro.distributions.distribution.Distribution]
         constructor to enable / disable
         parameter validation.
-        Default :py:data:`True`.
+        Default ``True``.
 
 
     Returns
     -------
-    dist : :class:`~pyter.distributions.TiterPlate`
-        A :class:`~numpyro.distributions.distribution.Distribution`
+    dist : [`TiterPlate`][pyter.distributions.TiterPlate]
+        A [`Distribution`][numpyro.distributions.distribution.Distribution]
         object representing the distribution of the
         well plaque counts (plaque assay) or
         positive / negative statuses
@@ -157,24 +156,23 @@ def sample_non_hier(
     Sample a vector of inferred
     parameters whose prior is fixed
 
-    Convenience wrapper for :func:`numpyro.sample()
-    <numpyro.primitives.sample>` to sample
+    Convenience wrapper for [`numpyro.sample()`][numpyro.primitives.sample] to sample
     a vectorized parameter that is non-hierarchical.
 
     Parameters
     ----------
-    param_name : :class:`str` :
+    param_name : [`str`][str] :
          The name of the parameter
 
-    param_dim : :class:`int` :
+    param_dim : [`int`][int] :
          The length of the parameter vector
 
-    param_prior : :class:`~numpyro.distributions.distribution.Distribution`
+    param_prior : [`Distribution`][numpyro.distributions.distribution.Distribution]
          A prior distribution for the parameter
 
     Returns
     -------
-    param : :class:`jax.Array`:
+    param : [`jax.Array`][jax.Array]:
          The sampled parameter vector.
 
     """
@@ -205,11 +203,11 @@ def sample_loc_scale_hier(
     that is determined by two parameters---
     a location parameter
     (``loc``, e.g. the mean/median/mode of a
-    :class:`~numpyro.distributions.continuous.Normal`
+    [`Normal`][numpyro.distributions.continuous.Normal]
     distribution) scale parameter
     (``scale``, e.g. the standard
     deviation of a
-    :class:`~numpyro.distributions.continuous.Normal`
+    [`Normal`][numpyro.distributions.continuous.Normal]
     distribution)---but the values of the
     location and/or the scale parameter
     are unknown and inferred alongside the
@@ -217,13 +215,13 @@ def sample_loc_scale_hier(
 
     Parameters
     ----------
-    param_name : :class:`str` :
+    param_name : [`str`][str] :
         The name of the parameter.
 
-    param_dim : :class:`int` :
+    param_dim : [`int`][int] :
         The length of the parameter vector to sample.
 
-    n_locs : :class:`int` :
+    n_locs : [`int`][int] :
         The number of groups of ``loc``
         (e.g. mean, mode) values across all the
         parameters in the vector, e.g. 3 groups
@@ -232,7 +230,7 @@ def sample_loc_scale_hier(
         means :math:`\\mu_1`, :math:`\\mu_2`,
         and :math:`\\mu_3`, respectively.
 
-    n_scales : :class:`int` :
+    n_scales : [`int`][int] :
         The number of groups of ``scale``
         (e.g. standard deviation) values
         across all the parameters in the
@@ -244,32 +242,31 @@ def sample_loc_scale_hier(
         :math:`\\sigma_1`, :math:`\\sigma_2`,
         and :math:`\\sigma_3` respectively.
 
-    param_distribution : :class:`~numpyro.distributions.
-    distribution.Distribution`
+    param_distribution : [`Distribution`][numpyro.distributions.distribution.Distribution]
         A loc / scale parameterizable probability distribution.
 
-    loc_ids : :data:`~numpy.typing.ArrayLike`
+    loc_ids : [`ArrayLike`][numpy.typing.ArrayLike]
         Array of ids associating each parameter in the
         desired vector to one of the ``n_locs``
         location parameters to be inferred.
 
-    scale_ids : :data:`~numpy.typing.ArrayLike`
+    scale_ids : [`ArrayLike`][numpy.typing.ArrayLike]
         Array of ids associating each parameter in the
         desired vector to one of the ``n_scales``
         scale parameters to be inferred.
 
-    loc_prior : :class:`~numpyro.distributions.distribution.Distribution`
+    loc_prior : [`Distribution`][numpyro.distributions.distribution.Distribution]
         Prior distribution for the inferred unknown
         ``loc`` parameters.
 
-    scale_prior : :class:`~numpyro.distributions.distribution.Distribution`
+    scale_prior : [`Distribution`][numpyro.distributions.distribution.Distribution]
         Prior distribution for the inferred unknown
         ``scale`` parameters.
 
 
     Returns
     -------
-    param : :class:`jax.Array`
+    param : [`jax.Array`][jax.Array]
         A sampled vector of parameters.
 
     """
@@ -296,16 +293,16 @@ def loc_scale_factory(
 
     Parameters
     ----------
-    distribution : :class:`str`
+    distribution : [`str`][str]
         the name of the desired distribution
-    loc :  :data:`~numpy.typing.ArrayLike`
+    loc :  [`ArrayLike`][numpy.typing.ArrayLike]
         the location parameter(s) of the desired distribution
-    scale :  :data:`~numpy.typing.ArrayLike`
+    scale :  [`ArrayLike`][numpy.typing.ArrayLike]
         the scale parameter(s) of the desired distribution
 
     Returns
     -------
-    dist : :class:`~numpyro.distributions.distribution.Distribution`
+    dist : [`Distribution`][numpyro.distributions.distribution.Distribution]
         The parameterized distribution.
 
     """
@@ -418,19 +415,19 @@ class TiterModel(AbstractModel):
 
         Parameters
         ----------
-        data : :class:`~pyter.data.TiterData` :
+        data : [`TiterData`][pyter.data.TiterData] :
             Pyter data object to validate.
 
-        run_data : :class:`dict` :
+        run_data : [`dict`][dict] :
             Frozen dictionary of data with which
             to fit the model, generated from
-            a :class:`TiterData` object
-            by the :meth:`~pyter.data.TiterData.freeze`
+            a [`TiterData`][TiterData] object
+            by the [`freeze`][pyter.data.TiterData.freeze]
             method.
 
         Returns
         -------
-        :py:data:`True`
+        ``True``
 
         Raises
         ------
@@ -514,14 +511,14 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        data : :class:`dict`
+        data : [`dict`][dict]
             Dictionary of data with which to fit the model.
-            Defaults to :py:data:`None`.
+            Defaults to ``None``.
 
 
         Returns
         -------
-        log_halflife: :class:`jax.Array`
+        log_halflife: [`jax.Array`][jax.Array]
             An array of sampled halflives.
 
         """
@@ -554,13 +551,13 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        data : :class:`dict`
+        data : [`dict`][dict]
             Dictionary of data with which to fit the model.
-            Defaults to :data:`None`.
+            Defaults to ``None``.
 
         Returns
         -------
-        log_titer_intercept : :class:`jax.Array`
+        log_titer_intercept : [`jax.Array`][jax.Array]
             An array of sampled intercepts.
 
         """
@@ -595,16 +592,16 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        predicted_titer : :class:`jax.Array`
+        predicted_titer : [`jax.Array`][jax.Array]
             An array of predicted titer values.
 
-        data : :class:`dict`
+        data : [`dict`][dict]
             Dictionary of data with which to fit the model.
-            Defaults to :py:data:`None`.
+            Defaults to ``None``.
 
         Returns
         -------
-        log_titer : :class:`jax.Array`
+        log_titer : [`jax.Array`][jax.Array]
 
         """
         if self.titers_overdispersed:
@@ -629,15 +626,15 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        data : :class:`dict`
+        data : [`dict`][dict]
             Dictionary of data with which to fit the model.
-            Defaults to :py:data:`None`, in which case an
+            Defaults to ``None``, in which case an
             empty dictionary is used.
 
         Returns
         -------
-        log_titer, wells : :class:`tuple`
-        ( :class:`jax.Array`, :class:`jax.Array` )
+        log_titer, wells : [`tuple`][tuple]
+        ( [`jax.Array`][jax.Array], [`jax.Array`][jax.Array] )
             Tuple of arrays containing sampled log
             titer values and sampled
             well statuses / plaque counts.

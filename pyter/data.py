@@ -18,30 +18,30 @@ def to_internal_ids(
 
     Parameters
     ----------
-    external_ids : :data:`~numpy.typing.ArrayLike`
+    external_ids : [`ArrayLike`][numpy.typing.ArrayLike]
         Array of external ids, which may be strings, numeric
         values, or another type coercible to a
-        :class:`numpy.array`.
+        [`numpy.array`][numpy.array].
 
 
     Returns
     -------
-    result : :class:`tuple`
+    result : [`tuple`][tuple]
 
         A tuple containing:
 
 
-        **internal_ids** : :class:`numpy.ndarray`
+        **internal_ids** : [`numpy.ndarray`][numpy.ndarray]
             An array of the assigned internal id values for each entry
             ("row") of the provided external ids.
 
-        **unique_internal_ids** : :class:`numpy.ndarray`
+        **unique_internal_ids** : [`numpy.ndarray`][numpy.ndarray]
             An array of the unique values of the internal ids
 
-        **unique_external_ids** : :class:`numpy.ndarray`
+        **unique_external_ids** : [`numpy.ndarray`][numpy.ndarray]
             An array of the unique values of the provided external ids
 
-        **representative_rows** : :class:`numpy.ndarray`
+        **representative_rows** : [`numpy.ndarray`][numpy.ndarray]
             An array of the indices for the ``external_ids`` and
             ``internal_ids`` arrays that return one instance
             for each unique id value. This can then be used
@@ -151,24 +151,23 @@ class AbstractData:
         Validate, fix, and format data
         for use in inference.
 
-        Data is returned as a :class:`dict`
+        Data is returned as a [`dict`][dict]
         that can be passed to a
-        corresponding :class:`Model
-        <AbstractModel>` instance.
+        corresponding [`Model`][AbstractModel] instance.
 
         The actual logic of validation
         and data preparation is handled
-        by sub-class specific :meth:`validate`
-        and :meth:`_freeze` methods; the
-        common :meth:`freeze` method ensures
+        by sub-class specific [`validate`][validate]
+        and [`_freeze`][_freeze] methods; the
+        common [`freeze`][freeze] method ensures
         common data dictionary output
         formatting across all
-        :class:`Data <AbstractData>`
+        [`Data`][AbstractData]
         subclasses.
 
         Returns
         -------
-        data_dict : :class:`dict`
+        data_dict : [`dict`][dict]
             A dictionary of data to pass to a model.
 
         """
@@ -194,14 +193,14 @@ class AbstractData:
 @attrs.define
 class NullData(AbstractData):
     """
-    :class:`Data <AbstractData>` class for models that do not
+    [`Data`][AbstractData] class for models that do not
     take any user-provided data, and
     for testing.
     """
 
     def _freeze(self):
         """
-        Null data has no :meth:`_freeze` logic
+        Null data has no [`_freeze`][_freeze] logic
         """
         pass
 
@@ -211,7 +210,7 @@ class NullData(AbstractData):
 
         Returns
         -------
-        :data:`True`
+        ``True``
         """
         return True
 
@@ -220,7 +219,7 @@ class NullData(AbstractData):
 @attrs.define
 class TiterData(AbstractData):
     """
-    :class:`Data <AbstractData>` class
+    [`Data`][AbstractData] class
     for inference of individual titers.
     """
 
@@ -263,7 +262,7 @@ class TiterData(AbstractData):
 
         Returns
         -------
-        :data:`True`
+        ``True``
         """
         return True
 
@@ -404,6 +403,6 @@ class HalfLifeData(AbstractData):
 
         Returns
         -------
-        :data:`True`
+        ``True``
         """
         return True

@@ -5,10 +5,9 @@
 Custom probability distributions for quantitative virology.
 
 Distributions are subclasses of
-:class:`numpyro.distributions.Distribution
-<numpyro.distributions.distribution.Distribution>`,
+[`numpyro.distributions.Distribution`][numpyro.distributions.distribution.Distribution],
 which we will refer to simply as class
-:class:`~numpyro.distributions.distribution.Distribution`.
+[`Distribution`][numpyro.distributions.distribution.Distribution].
 """
 
 import jax.numpy as jnp
@@ -42,7 +41,7 @@ class PoissonSingleHit(npro.distributions.Distribution):
 
     Parameters
     ----------
-    rate : :py:class:`float`
+    rate : [`float`][float]
         The rate of the Poisson random variable.
     """
 
@@ -95,8 +94,8 @@ class TiterPlate(npro.distributions.Distribution):
     Base distribution to represent a set of titers
 
     Subclasses represent different assays:
-    :class:`PlaquePlate` for plaque assays,
-    and :class:`EndpointTiterPlate` for
+    [`PlaquePlate`][PlaquePlate] for plaque assays,
+    and [`EndpointTiterPlate`][EndpointTiterPlate] for
     endpoint titration assays.
     """
 
