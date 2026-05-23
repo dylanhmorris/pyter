@@ -1,9 +1,6 @@
-#!/usr/bin/env python3
-
-# filename: infer.py
-# description: main Inference
-# class that will handle all our
-# inferential tasks in PyTer
+"""
+The [`Inference `][] handles all inferential tasks in Pyter.
+"""
 
 import attrs
 import jax
@@ -28,12 +25,12 @@ class Inference:
     run_data: dict = None
     run_rng_key: jax.random.PRNGKey = None
 
-    def new_kernel(self, model):
+    def new_kernel(self, model: AbstractModel) -> NUTS:
         """
 
         Parameters
         ----------
-        model :
+        model
 
         Returns
         -------
@@ -46,19 +43,23 @@ class Inference:
             forward_mode_differentiation=self.forward_mode_differentiation,
         )
 
-    def new_runner(self, kernel, num_warmup, num_samples, **kwargs):
+    def new_runner(
+        self, kernel: NUTS, num_warmup: int, num_samples: int, **kwargs: object
+    ) -> MCMC:
         """
 
         Parameters
         ----------
-        kernel :
-        num_warmup :
-        num_samples :
-        **kwargs :
+        kernel
+        num_warmup
+        num_samples
+
+        **kwargs
+            Additional keyword arguments passed to the [`MCMC`][] constructor.
 
         Returns
         -------
-
+        [`MCMC`][]
         """
         return MCMC(
             kernel, num_warmup=num_warmup, num_samples=num_samples, **kwargs
@@ -82,19 +83,27 @@ class Inference:
 
         Parameters
         ----------
-        model: AbstractModel :
-             (Default value = None)
-        data: AbstractData :
-             (Default value = None)
-        random_seed: int :
-             (Default value = None)
-        num_warmup: int :
-             (Default value = 1000)
-        num_samples: int :
-             (Default value = 1000)
-        validate_data: bool :
-             (Default value = True)
-        **kwargs :
+        model
+            Pyter model to fit using the inference run.
+
+        data
+            Pyter data to use when fitting the model.
+
+        random_seed
+            Integer random seed for the MCMC run.
+
+        num_warmup
+            Number of warmup samples per chain for the No-U-Turn Sampler.
+
+        num_samples
+            Number of MCMC samples to draw per chain post-warmup.
+
+        validate_data
+            Boolean. Run data validation prior to running inference?
+
+        **kwargs
+            Additional keyword arguments passed to [`self.new_runner`][]
+            when creating the [`MCMC`][] runner.
 
 
         Returns

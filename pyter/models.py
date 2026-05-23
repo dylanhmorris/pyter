@@ -1,21 +1,15 @@
 """
-The :mod:`~pyter.models` module provides
-flexible model classes to represent
+The [`pyter.models`][] module provides flexible model classes to represent
 distinct experimental setups.
 
-The :class:`AbstractModel` base class
-serves as a template for :class:`Model`
-subclasses that represent different
-possible experimental setups with different
-inferred quantities of interest.
+The [`AbstractModel`][pyter.models.AbstractModel] base class serves as a
+template for ``Model` subclasses that represent different possible experimental
+setups with different inferred quantities of interest.
 
-The core of any :class:`Model` subclass is
-the :meth:`~pyter.models.AbstractModel.model`
-method, which takes in a data dictionary
-and makes calls to :func:`numpyro.sample()
-<numpyro.primitives.sample>` to
-define the stochastic generative process.
-
+The core of any ``Model`` subclass is the [`pyter.models.AbstractModel.model`][]
+method, which takes in a data dictionary and makes calls to
+[`numpyro.sample()`][numpyro.primitives.sample] to define the stochastic
+generative process.
 """
 
 import inspect
@@ -50,25 +44,25 @@ def well_distribution_factory(
 
     Parameters
     ----------
-    assay : :class:`str` = {'pfu', 'tcid'}
+    assay
         Which titration assay to use. Options are
         ``'pfu'``--plaque assay--and
         ``'tcid'``--endpoint titration assay.
 
-    log_titer : :data:`~numpy.typing.ArrayLike`
+    log_titer
         Underlying log titer(s) per unit volume in
         the undilute sample(s).
 
-    log_dilution : :data:`~numpy.typing.ArrayLike`
+    log_dilution
         Log dilution(s) relative to the original
         sample(s) for each well's inoculum.
 
-    log_base ~numpy.typing.ArrayLike`
+    log_base
         Base of the logarithim for logarithmic
         quantities including titer and
         dilution (e.g. e, 2, 10, etc).
 
-    well_volume : :data:`~numpy.typing.ArrayLike`
+    well_volume
         Volume of the inoculum delivered to
         each well, in the same units as the
         per unit volume for the ``log_titer``
@@ -76,29 +70,22 @@ def well_distribution_factory(
         mL, this is the volume of inoculum
         in mL.
 
-    false_hit_rate : :data:`~numpy.typing.ArrayLike`
-        Rate (mean number per well)
-        of false hits (i.e. rate of apparent
-        infection with a sample containing
-        no infectious material).
+    false_hit_rate
+        Rate (mean number per well) of false hits (i.e. rate of apparent
+        infection with a sample containing no infectious material).
 
-    validate_args : :class:`bool`
+    validate_args
         Passed to the
-        :class:`~numpyro.distributions.distribution.Distribution`
-        constructor to enable / disable
-        parameter validation.
-        Default :py:data:`True`.
+        [`Distribution`][numpyro.distributions.distribution.Distribution]
+        constructor to enable / disable parameter validation.
 
 
     Returns
     -------
-    dist : :class:`~pyter.distributions.TiterPlate`
-        A :class:`~numpyro.distributions.distribution.Distribution`
-        object representing the distribution of the
-        well plaque counts (plaque assay) or
-        positive / negative statuses
-        (endpoint titration assay).
-
+    TiterPlate
+        A [`Distribution`][numpyro.distributions.distribution.Distribution]
+        object representing the distribution of the well plaque counts (plaque assay)
+        or positive / negative statuses (endpoint titration assay).
     """
 
     assays = {"tcid": EndpointTiterPlate, "pfu": PlaquePlate}
@@ -154,12 +141,10 @@ def sample_non_hier(
     param_name: str, param_dim: int, param_prior: dist.Distribution
 ) -> jax.Array:
     """
-    Sample a vector of inferred
-    parameters whose prior is fixed
+    Sample a vector of inferred parameters whose prior is fixed.
 
-    Convenience wrapper for :func:`numpyro.sample()
-    <numpyro.primitives.sample>` to sample
-    a vectorized parameter that is non-hierarchical.
+    Convenience wrapper for [`numpyro.sample()`][numpyro.primitives.sample]
+    to sample a vectorized parameter that is non-hierarchical.
 
     Parameters
     ----------
@@ -174,8 +159,7 @@ def sample_non_hier(
 
     Returns
     -------
-    param : :class:`jax.Array`:
-         The sampled parameter vector.
+    The sampled parameter vector.
 
     """
     param = npro.sample(param_name, param_prior.expand((param_dim,)))
@@ -217,22 +201,22 @@ def sample_loc_scale_hier(
 
     Parameters
     ----------
-    param_name : :class:`str` :
+    param_name
         The name of the parameter.
 
-    param_dim : :class:`int` :
+    param_dim
         The length of the parameter vector to sample.
 
-    n_locs : :class:`int` :
+    n_locs
         The number of groups of ``loc``
         (e.g. mean, mode) values across all the
         parameters in the vector, e.g. 3 groups
         of parameters where group members
         are Normally distributed about unknown
-        means :math:`\\mu_1`, :math:`\\mu_2`,
-        and :math:`\\mu_3`, respectively.
+        means $\mu_1$, $\mu_2$,
+        and $\mu_3$, respectively.
 
-    n_scales : :class:`int` :
+    n_scales
         The number of groups of ``scale``
         (e.g. standard deviation) values
         across all the parameters in the
@@ -241,35 +225,34 @@ def sample_loc_scale_hier(
         about their (possibly shared,
         see ``n_locs``) unknown means
         with unknown shared standard deviations
-        :math:`\\sigma_1`, :math:`\\sigma_2`,
-        and :math:`\\sigma_3` respectively.
+        $\sigma_1$, $\sigma_2$ and $\sigma_3$,
+        respectively.
 
-    param_distribution : :class:`~numpyro.distributions.
-    distribution.Distribution`
+    param_distribution
         A loc / scale parameterizable probability distribution.
 
-    loc_ids : :data:`~numpy.typing.ArrayLike`
+    loc_ids
         Array of ids associating each parameter in the
         desired vector to one of the ``n_locs``
         location parameters to be inferred.
 
-    scale_ids : :data:`~numpy.typing.ArrayLike`
+    scale_ids
         Array of ids associating each parameter in the
         desired vector to one of the ``n_scales``
         scale parameters to be inferred.
 
-    loc_prior : :class:`~numpyro.distributions.distribution.Distribution`
+    loc_prior
         Prior distribution for the inferred unknown
         ``loc`` parameters.
 
-    scale_prior : :class:`~numpyro.distributions.distribution.Distribution`
+    scale_prior
         Prior distribution for the inferred unknown
         ``scale`` parameters.
 
 
     Returns
     -------
-    param : :class:`jax.Array`
+    param:
         A sampled vector of parameters.
 
     """
@@ -458,18 +441,18 @@ class HalfLifeModel(AbstractModel):
     cases in which non-destructive sampling
     is impossible (for example, depositing
     stock onto a surface and retrieving it at
-    :math:`t = 0` h, :math:`t=1` h, etc.).
+    $t = 0\mathrm{h}$, $t=1\mathrm{h}$, etc.).
     To do this, we use a hierarchical approach:
     we infer a shared halflife for the samples
     jointly with a and modal value for the
     initial titer deposited. Each individual
-    sample's unknown :math:`t = 0` value
+    sample's unknown $t = 0$ value
     may vary about this value. This allows
     the model to use the immediately retrieved
-    t = 0 titers to make inferences about the
-    what the unmeasured :math:`t = 0` h titers
-    were for the samples taken at :math:`t = 1` h,
-    :math:`t = 2` h, etc. samples.
+    $t = 0$ titers to make inferences about the
+    what the unmeasured $t = 0\mathrm{h}$ titers
+    were for the samples taken a $t = 1 \mathrm{h}$,
+    $t = 2 \mathrm{h}$, etc. samples.
     """
 
     assay: str = "tcid"
@@ -521,7 +504,7 @@ class HalfLifeModel(AbstractModel):
 
         Returns
         -------
-        log_halflife: :class:`jax.Array`
+        log_halflife:
             An array of sampled halflives.
 
         """
@@ -548,19 +531,19 @@ class HalfLifeModel(AbstractModel):
 
     def sample_log_titer_intercept(self, data: dict = None) -> jax.Array:
         """
-        Sample log intercept (i.e. t = 0) values for the
+        Sample log intercept (i.e. $t = 0$) values for the
         modeled titers, either a fixed-parameter prior
         or hierarchically, as specified for the user.
 
         Parameters
         ----------
-        data : :class:`dict`
+        data
             Dictionary of data with which to fit the model.
             Defaults to :data:`None`.
 
         Returns
         -------
-        log_titer_intercept : :class:`jax.Array`
+        log_titer_intercept :
             An array of sampled intercepts.
 
         """
@@ -595,16 +578,17 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        predicted_titer : :class:`jax.Array`
+        predicted_titer
             An array of predicted titer values.
 
-        data : :class:`dict`
+        data
             Dictionary of data with which to fit the model.
             Defaults to :py:data:`None`.
 
         Returns
         -------
-        log_titer : :class:`jax.Array`
+        log_titer :
+            The sampled log titer values.
 
         """
         if self.titers_overdispersed:
@@ -636,8 +620,7 @@ class HalfLifeModel(AbstractModel):
 
         Returns
         -------
-        log_titer, wells : :class:`tuple`
-        ( :class:`jax.Array`, :class:`jax.Array` )
+        log_titer, wells:
             Tuple of arrays containing sampled log
             titer values and sampled
             well statuses / plaque counts.
@@ -718,22 +701,22 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
     log_halflife_distribution: dist.Distribution = attrs.Factory(
         lambda: dist.Normal
     )
-    log_halflife_loc_prior: dist.Distribution = None
-    log_halflife_scale_prior: dist.Distribution = None
+    log_halflife_loc_prior: dist.Distribution | None = None
+    log_halflife_scale_prior: dist.Distribution | None = None
 
     log_intercept_distribution: dist.Distribution = attrs.Factory(
         lambda: dist.Normal
     )
-    log_intercept_loc_prior: dist.Distribution = None
-    log_intercept_scale_prior: dist.Distribution = None
+    log_intercept_loc_prior: dist.Distribution | None = None
+    log_intercept_scale_prior: dist.Distribution | None = None
 
     log_titer_error_distribution: dist.Distribution = attrs.Factory(
         lambda: dist.Normal
     )
-    log_titer_error_scale_prior: dist.Distribution = None
+    log_titer_error_scale_prior: dist.Distribution | None = None
 
-    log_halflife_offset_prior: dist.Distribution = None
-    breakpoint_delta_prior: dist.Distribution = None
+    log_halflife_offset_prior: dist.Distribution | None = None
+    breakpoint_delta_prior: dist.Distribution | None = None
 
     def __attrs_post_init__(self):
         if self.n_phases < 2:
@@ -746,13 +729,14 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
             )
         super().__attrs_post_init__()
 
-    def sample_log_halflife(self, data: dict = None):
+    def sample_log_halflife(
+        self, data: dict | None = None
+    ) -> tuple[ArrayLike, ArrayLike]:
         """
 
         Parameters
         ----------
-        data :
-             (Default value = None)
+        data
 
         Returns
         -------
@@ -811,7 +795,7 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
         return log_halflife, break_times
 
-    def model(self, data: dict = None):
+    def model(self, data: dict | None = None) -> tuple[ArrayLike, ArrayLike]:
         """
 
         Parameters
@@ -821,7 +805,8 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
         Returns
         -------
-
+        log_halflife, wells:
+            The sampled log titers and the sampled well values.
         """
 
         log_halflife, break_times = self.sample_log_halflife(data=data)

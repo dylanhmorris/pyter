@@ -13,35 +13,34 @@ def to_internal_ids(
     external_ids: ArrayLike,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
     """
-    Internally index a long tidy
-    data frame.
+    Internally index a long tidy data frame.
 
     Parameters
     ----------
-    external_ids : :data:`~numpy.typing.ArrayLike`
+    external_ids
         Array of external ids, which may be strings, numeric
         values, or another type coercible to a
-        :class:`numpy.array`.
+        [`numpy.ndarray`][].
 
 
     Returns
     -------
-    result : :class:`tuple`
+    result
 
         A tuple containing:
 
 
-        **internal_ids** : :class:`numpy.ndarray`
+        **internal_ids**
             An array of the assigned internal id values for each entry
             ("row") of the provided external ids.
 
-        **unique_internal_ids** : :class:`numpy.ndarray`
+        **unique_internal_ids**
             An array of the unique values of the internal ids
 
-        **unique_external_ids** : :class:`numpy.ndarray`
+        **unique_external_ids**
             An array of the unique values of the provided external ids
 
-        **representative_rows** : :class:`numpy.ndarray`
+        **representative_rows**
             An array of the indices for the ``external_ids`` and
             ``internal_ids`` arrays that return one instance
             for each unique id value. This can then be used
@@ -77,23 +76,27 @@ def validate_internal_ids(
     n_values: int,
 ) -> None:
     """
+    Validate a set of internal ids, as returned by
+    [`to_internal_ids`][].
 
     Parameters
     ----------
-    internal_ids :
-    unique_internal_ids:
-    unique_external_ids :
-        param representative_rows:
-    n_values :
-
-    unique_internal_ids :
-
-    representative_rows :
+    internal_ids
+    unique_internal_ids
+    unique_external_ids
+    representative_rows
+    n_values
 
 
     Returns
     -------
+    `None`
+        on success.
 
+    Raises
+    ------
+    ValueError
+       if validation fails.
     """
 
     if not all(

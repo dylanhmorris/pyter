@@ -6,6 +6,13 @@ site_url = "https://dylanhmorris.com/pyter"
 repo_url = "https://github.com/dylanhmorris/pyter"
 repo_name = "pyter"
 copyright = "Copyright 2026 Dylan H. Morris"
+
+extra_javascript = [
+    "javascripts/mathjax.js",
+    "https://unpkg.com/mathjax@4/tex-mml-chtml.js"
+]
+
+
 [project.theme]
 language = "en"
 
@@ -21,6 +28,7 @@ features = [
     "toc.follow",
     "toc.integrate"
 ]
+
 
 [project.markdown_extensions.toc]
 permalink = true
@@ -44,6 +52,8 @@ permalink = true
 [project.markdown_extensions.pymdownx.superfences]
 [project.markdown_extensions.pymdownx.tabbed]
 alternate_style = true
+[project.markdown_extensions."pymdownx.arithmatex"]
+generic = true
 
 
 [project.plugins.mkdocstrings]
