@@ -3,13 +3,13 @@ The [`models`][pyter.models] module provides
 flexible model classes to represent
 distinct experimental setups.
 
-The [`AbstractModel`] base class
-serves as a template for [`Model`]
+The [`AbstractModel`][] base class
+serves as a template for [`Model`][]
 subclasses that represent different
 possible experimental setups with different
 inferred quantities of interest.
 
-The core of any [`Model`] subclass is
+The core of any [`Model`][] subclass is
 the [`model`][pyter.models.AbstractModel.model]
 method, which takes in a data dictionary
 and makes calls to [`numpyro.sample()`][numpyro.primitives.sample] to
@@ -49,7 +49,7 @@ def well_distribution_factory(
 
     Parameters
     ----------
-    assay : [`str`] = {'pfu', 'tcid'}
+    assay : [`str`][] = {'pfu', 'tcid'}
         Which titration assay to use. Options are
         ``'pfu'``--plaque assay--and
         ``'tcid'``--endpoint titration assay.
@@ -81,7 +81,7 @@ def well_distribution_factory(
         infection with a sample containing
         no infectious material).
 
-    validate_args : [`bool`]
+    validate_args : [`bool`][]
         Passed to the
         [`Distribution`][numpyro.distributions.distribution.Distribution]
         constructor to enable / disable
@@ -161,10 +161,10 @@ def sample_non_hier(
 
     Parameters
     ----------
-    param_name : [`str`] :
+    param_name : [`str`][] :
          The name of the parameter
 
-    param_dim : [`int`] :
+    param_dim : [`int`][] :
          The length of the parameter vector
 
     param_prior : [`Distribution`][numpyro.distributions.distribution.Distribution]
@@ -172,7 +172,7 @@ def sample_non_hier(
 
     Returns
     -------
-    param : [`jax.Array`]:
+    param : [`jax.Array`][]:
          The sampled parameter vector.
 
     """
@@ -215,13 +215,13 @@ def sample_loc_scale_hier(
 
     Parameters
     ----------
-    param_name : [`str`] :
+    param_name : [`str`][] :
         The name of the parameter.
 
-    param_dim : [`int`] :
+    param_dim : [`int`][] :
         The length of the parameter vector to sample.
 
-    n_locs : [`int`] :
+    n_locs : [`int`][] :
         The number of groups of ``loc``
         (e.g. mean, mode) values across all the
         parameters in the vector, e.g. 3 groups
@@ -230,7 +230,7 @@ def sample_loc_scale_hier(
         means :math:`\\mu_1`, :math:`\\mu_2`,
         and :math:`\\mu_3`, respectively.
 
-    n_scales : [`int`] :
+    n_scales : [`int`][] :
         The number of groups of ``scale``
         (e.g. standard deviation) values
         across all the parameters in the
@@ -266,7 +266,7 @@ def sample_loc_scale_hier(
 
     Returns
     -------
-    param : [`jax.Array`]
+    param : [`jax.Array`][]
         A sampled vector of parameters.
 
     """
@@ -293,7 +293,7 @@ def loc_scale_factory(
 
     Parameters
     ----------
-    distribution : [`str`]
+    distribution : [`str`][]
         the name of the desired distribution
     loc :  [`ArrayLike`][numpy.typing.ArrayLike]
         the location parameter(s) of the desired distribution
@@ -418,10 +418,10 @@ class TiterModel(AbstractModel):
         data : [`TiterData`][pyter.data.TiterData] :
             Pyter data object to validate.
 
-        run_data : [`dict`] :
+        run_data : [`dict`][] :
             Frozen dictionary of data with which
             to fit the model, generated from
-            a [`TiterData`] object
+            a [`TiterData`][] object
             by the [`freeze`][pyter.data.TiterData.freeze]
             method.
 
@@ -511,14 +511,14 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        data : [`dict`]
+        data : [`dict`][]
             Dictionary of data with which to fit the model.
             Defaults to ``None``.
 
 
         Returns
         -------
-        log_halflife: [`jax.Array`]
+        log_halflife: [`jax.Array`][]
             An array of sampled halflives.
 
         """
@@ -551,13 +551,13 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        data : [`dict`]
+        data : [`dict`][]
             Dictionary of data with which to fit the model.
             Defaults to ``None``.
 
         Returns
         -------
-        log_titer_intercept : [`jax.Array`]
+        log_titer_intercept : [`jax.Array`][]
             An array of sampled intercepts.
 
         """
@@ -592,16 +592,16 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        predicted_titer : [`jax.Array`]
+        predicted_titer : [`jax.Array`][]
             An array of predicted titer values.
 
-        data : [`dict`]
+        data : [`dict`][]
             Dictionary of data with which to fit the model.
             Defaults to ``None``.
 
         Returns
         -------
-        log_titer : [`jax.Array`]
+        log_titer : [`jax.Array`][]
 
         """
         if self.titers_overdispersed:
@@ -626,15 +626,15 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        data : [`dict`]
+        data : [`dict`][]
             Dictionary of data with which to fit the model.
             Defaults to ``None``, in which case an
             empty dictionary is used.
 
         Returns
         -------
-        log_titer, wells : [`tuple`]
-        ( [`jax.Array`], [`jax.Array`] )
+        log_titer, wells : [`tuple`][]
+        ( [`jax.Array`][], [`jax.Array`][] )
             Tuple of arrays containing sampled log
             titer values and sampled
             well statuses / plaque counts.

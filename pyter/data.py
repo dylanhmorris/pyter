@@ -21,27 +21,27 @@ def to_internal_ids(
     external_ids : [`ArrayLike`][numpy.typing.ArrayLike]
         Array of external ids, which may be strings, numeric
         values, or another type coercible to a
-        [`numpy.array`].
+        [`numpy.array`][].
 
 
     Returns
     -------
-    result : [`tuple`]
+    result : [`tuple`][]
 
         A tuple containing:
 
 
-        **internal_ids** : [`numpy.ndarray`]
+        **internal_ids** : [`numpy.ndarray`][]
             An array of the assigned internal id values for each entry
             ("row") of the provided external ids.
 
-        **unique_internal_ids** : [`numpy.ndarray`]
+        **unique_internal_ids** : [`numpy.ndarray`][]
             An array of the unique values of the internal ids
 
-        **unique_external_ids** : [`numpy.ndarray`]
+        **unique_external_ids** : [`numpy.ndarray`][]
             An array of the unique values of the provided external ids
 
-        **representative_rows** : [`numpy.ndarray`]
+        **representative_rows** : [`numpy.ndarray`][]
             An array of the indices for the ``external_ids`` and
             ``internal_ids`` arrays that return one instance
             for each unique id value. This can then be used
@@ -151,15 +151,15 @@ class AbstractData:
         Validate, fix, and format data
         for use in inference.
 
-        Data is returned as a [`dict`]
+        Data is returned as a [`dict`][]
         that can be passed to a
         corresponding [`Model`][AbstractModel] instance.
 
         The actual logic of validation
         and data preparation is handled
-        by sub-class specific [`validate`]
-        and [`_freeze`] methods; the
-        common [`freeze`] method ensures
+        by sub-class specific [`validate`][]
+        and [`_freeze`][] methods; the
+        common [`freeze`][] method ensures
         common data dictionary output
         formatting across all
         [`Data`][AbstractData]
@@ -167,7 +167,7 @@ class AbstractData:
 
         Returns
         -------
-        data_dict : [`dict`]
+        data_dict : [`dict`][]
             A dictionary of data to pass to a model.
 
         """
@@ -200,7 +200,7 @@ class NullData(AbstractData):
 
     def _freeze(self):
         """
-        Null data has no [`_freeze`] logic
+        Null data has no [`_freeze`][] logic
         """
         pass
 
