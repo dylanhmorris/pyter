@@ -41,7 +41,7 @@ class PoissonSingleHit(npro.distributions.Distribution):
 
     Parameters
     ----------
-    rate : [`float`][float]
+    rate : [`float`]
         The rate of the Poisson random variable.
     """
 
@@ -94,8 +94,8 @@ class TiterPlate(npro.distributions.Distribution):
     Base distribution to represent a set of titers
 
     Subclasses represent different assays:
-    [`PlaquePlate`][PlaquePlate] for plaque assays,
-    and [`EndpointTiterPlate`][EndpointTiterPlate] for
+    [`PlaquePlate`] for plaque assays,
+    and [`EndpointTiterPlate`] for
     endpoint titration assays.
     """
 
