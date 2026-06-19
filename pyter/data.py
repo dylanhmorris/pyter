@@ -82,11 +82,24 @@ def validate_internal_ids(
     Parameters
     ----------
     internal_ids
-    unique_internal_ids
-    unique_external_ids
-    representative_rows
-    n_values
+        An array of the assigned internal id values for each entry
+        ("row") of the provided external ids.
 
+    unique_internal_ids
+        An array of the unique values of the internal ids
+
+    unique_external_ids
+        An array of the unique values of the provided external ids
+
+    representative_rows
+        An array of the indices for the ``external_ids`` and
+        ``internal_ids`` arrays that return one instance
+        for each unique id value. This can then be used
+        to index any other columns of the original data
+        table from which the ``external_ids`` came.
+
+    n_values
+        Number of unique internal ids.
 
     Returns
     -------
@@ -121,19 +134,36 @@ def get_associated_internal_ids(
     internal_id_dict: dict,
     representative_row_dict: dict,
 ) -> np.ndarray:
-    """For example, get internal intercept id
-    for each internal titer id
+    """
+    Helper function for extracting internal id values
+    from a nested dictionary of long-form internal id values
+    and a second nested dictionary of representative rows.
+
+    For example, get an array yielding the associated
+    internal intercept for each titer.
 
     Parameters
     ----------
-    key_param :
-    value_param:
-    internal_id_dict :
-    representative_row_dict:
+    key_param
+        Name of the set of ids in the `representative_row_dict`.
+        Typically the name of a model parameter, e.g.
+        `"titer"`, `"halflife"`.
+
+    value_param
+        Name of the set of ids in the internal id dict. e.g.
+        "titer_intercept"
+
+    internal_id_dict
+        Dictionary mapping parameter names to sets of internal id values.
+
+    representative_row_dict
+        Dictionary with representative rows in the arrays in `internal_id_dict`
+        corresponding to `key_parameter` (whose value may be represented multiple times.
 
     Returns
     -------
-
+    ids:
+        Array of internal ids, if any, otherwise an empty array.
     """
     rows = representative_row_dict[key_param]
     if rows.size > 0 and internal_id_dict[value_param].size > 0:

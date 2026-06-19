@@ -148,18 +148,19 @@ def sample_non_hier(
 
     Parameters
     ----------
-    param_name : :class:`str` :
+    param_name
          The name of the parameter
 
-    param_dim : :class:`int` :
+    param_dim
          The length of the parameter vector
 
-    param_prior : :class:`~numpyro.distributions.distribution.Distribution`
+    param_prior
          A prior distribution for the parameter
 
     Returns
     -------
-    The sampled parameter vector.
+    param:
+        The sampled parameter vector.
 
     """
     param = npro.sample(param_name, param_prior.expand((param_dim,)))
@@ -252,7 +253,7 @@ def sample_loc_scale_hier(
 
     Returns
     -------
-    param: jax.Array
+    param:
         A sampled vector of parameters.
 
     """
@@ -316,27 +317,47 @@ class AbstractModel:
 
     reparam_dict: dict = attrs.Factory(dict)
 
-    def model(self, data: dict = None):
+    def model(self, data: dict = None) -> None:
         """
+        Interface for function that defining is the specific probabilistic model
+        (in NumPyro syntax).
 
         Parameters
         ----------
         data
            Dictionary of data to fit.
+
+        Returns
+        -------
+        None
         """
         raise NotImplementedError()
 
     def get_reparam(self):
-        """ """
+        """
+        Get a [`numpyro.handlers.reparam`][] handler based
+        on the `Model`'s `reparam_dict`.
+
+        Returns
+        -------
+        :
+            The configured reparametrization handler.
+        """
         return reparam(self.model, self.reparam_dict)
 
     def validate_data(self, data: pdata.AbstractData, run_data: dict):
         """
+        Interface for data validation.
 
         Parameters
         ----------
-        data :
-        run_data :
+        data
+            Dataset to validate.
+
+        run_data
+            Data in the dictionary form it gets passed to `self.model`
+            (as the output of a [`freeze()`][pyter.data.AbstractData.freeze]
+            call).
 
         Returns
         -------
@@ -360,7 +381,7 @@ class TiterModel(AbstractModel):
     log_titer_prior: dist.Distribution = None
     assay: str = "tcid"
 
-    def model(self, data: dict = None):
+    def model(self, data: dict = None) -> jax.Array:
         """
 
         Parameters
@@ -370,7 +391,8 @@ class TiterModel(AbstractModel):
 
         Returns
         -------
-
+        wells
+           The sampled well values.
         """
 
         log_titer = sample_non_hier(
@@ -430,23 +452,27 @@ class TiterModel(AbstractModel):
 @attrs.define
 class HalfLifeModel(AbstractModel):
     """
-    Model to infer virus halflives from
-    experimental timeseries data.
+    Model to infer virus halflives from experimental timeseries
+    or single timepoint data.
 
-    A timeseries here is any set titration
-    results taken at different timepoints
-    that represent repeat samples from the
-    same viral stock. But we can also handle
-    cases in which non-destructive sampling
-    is impossible (for example, depositing
-    stock onto a surface and retrieving it at
-    $t = 0\mathrm{h}$, $t=1\mathrm{h}$, etc.).
-    To do this, we use a hierarchical approach:
-    we infer a shared halflife for the samples
-    jointly with a and modal value for the
-    initial titer deposited. Each individual
-    sample's unknown $t = 0$ value
-    may vary about this value. This allows
+    A timeseries here is any set titration results taken
+    at different timepoints that represent repeated samples
+    taken at different times from the same viral stock.
+
+    We can also perform halflife inference from individual samples,
+    provided those samples have a shared halflife.
+
+    This often occurs when sampling is necessarily destructive
+    (for example, a surface deposition experiment in which
+    stock is pipetted onto cupons at $t=0$ and one or more cupons are
+    destructively sampled for remaining virus at $t = 0\mathrm{h}$,
+    $t=1\mathrm{h}$, etc.).
+
+    We use a hierarchical approach to
+    model these sub-: we infer a shared
+    halflife for the samples jointly with a and modal value
+    for the initial titer deposited. Each individual sample's
+    unknown $t = 0$ value may vary about this value. This allows
     the model to use the immediately retrieved
     $t = 0$ titers to make inferences about the
     what the unmeasured $t = 0\mathrm{h}$ titers
@@ -582,7 +608,7 @@ class HalfLifeModel(AbstractModel):
 
         data
             Dictionary of data with which to fit the model.
-            Defaults to :py:data:`None`.
+            Defaults `None`.
 
         Returns
         -------
@@ -614,12 +640,12 @@ class HalfLifeModel(AbstractModel):
         ----------
         data
             Dictionary of data with which to fit the model.
-            Defaults to :py:data:`None`, in which case an
+            Defaults to `None`, in which case an
             empty dictionary is used.
 
         Returns
         -------
-        log_titer, wells :
+        :
             Tuple of arrays containing sampled log
             titer values and sampled
             well statuses / plaque counts.
@@ -747,9 +773,10 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
         Returns
         -------
-        log_halflife, break_times : tuple[jax.Array, jax.Array]
-            Tuple of arrays containing the sampled log halflives and the sampled
+        :
+            Tuple of two arrays: the sampled log halflives and the sampled
             breakpoint times between the two phases.
+
         """
         if self.halflives_hier:
             log_halflife_first = sample_loc_scale_hier(
@@ -814,8 +841,8 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
         Returns
         -------
-        log_halflife wells :
-            The sampled log titers and the sampled well values.
+        :
+            Tuple containing the sampled log titers and the sampled well values.
         """
 
         log_halflife, break_times = self.sample_log_halflife(data=data)
