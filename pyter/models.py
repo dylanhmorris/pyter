@@ -252,7 +252,7 @@ def sample_loc_scale_hier(
 
     Returns
     -------
-    param:
+    param: jax.Array
         A sampled vector of parameters.
 
     """
@@ -279,16 +279,16 @@ def loc_scale_factory(
 
     Parameters
     ----------
-    distribution : :class:`str`
+    distribution
         the name of the desired distribution
-    loc :  :data:`~numpy.typing.ArrayLike`
+    loc
         the location parameter(s) of the desired distribution
-    scale :  :data:`~numpy.typing.ArrayLike`
+    scale
         the scale parameter(s) of the desired distribution
 
     Returns
     -------
-    dist : :class:`~numpyro.distributions.distribution.Distribution`
+    dist:
         The parameterized distribution.
 
     """
@@ -321,12 +321,8 @@ class AbstractModel:
 
         Parameters
         ----------
-        data :
-             (Default value = None)
-
-        Returns
-        -------
-
+        data
+           Dictionary of data to fit.
         """
         raise NotImplementedError()
 
@@ -369,7 +365,8 @@ class TiterModel(AbstractModel):
 
         Parameters
         ----------
-        data :
+        data
+            Dictionary of data to fit, as the output of [`TiterData.freeze()`][]
 
         Returns
         -------
@@ -413,11 +410,13 @@ class TiterModel(AbstractModel):
 
         Returns
         -------
-        :py:data:`True`
+        True
+            On success.
 
         Raises
         ------
-
+        ValueError
+            On incorrect data type.
         """
         if not isinstance(data, pdata.TiterData):
             raise ValueError(
@@ -497,14 +496,14 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        data : :class:`dict`
+        data
             Dictionary of data with which to fit the model.
             Defaults to :py:data:`None`.
 
 
         Returns
         -------
-        log_halflife:
+        log_halflife :
             An array of sampled halflives.
 
         """
@@ -613,17 +612,18 @@ class HalfLifeModel(AbstractModel):
 
         Parameters
         ----------
-        data : :class:`dict`
+        data
             Dictionary of data with which to fit the model.
             Defaults to :py:data:`None`, in which case an
             empty dictionary is used.
 
         Returns
         -------
-        log_titer, wells:
+        log_titer, wells :
             Tuple of arrays containing sampled log
             titer values and sampled
             well statuses / plaque counts.
+
         """
         if data is None:
             data = {}
@@ -677,6 +677,13 @@ class HalfLifeModel(AbstractModel):
 
         Returns
         -------
+        None
+            On success.
+
+        Raises
+        ------
+        ValueError
+           If data is not an instance of [`HalfLifeData`][pyter.data.HalfLifeData].
 
         """
         if not isinstance(data, pdata.HalfLifeData):
@@ -731,7 +738,7 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
     def sample_log_halflife(
         self, data: dict | None = None
-    ) -> tuple[ArrayLike, ArrayLike]:
+    ) -> tuple[jax.Array, jax.Array]:
         """
 
         Parameters
@@ -740,7 +747,9 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
         Returns
         -------
-
+        log_halflife, break_times : tuple[jax.Array, jax.Array]
+            Tuple of arrays containing the sampled log halflives and the sampled
+            breakpoint times between the two phases.
         """
         if self.halflives_hier:
             log_halflife_first = sample_loc_scale_hier(
@@ -800,12 +809,12 @@ class MultiphaseHalfLifeModel(HalfLifeModel):
 
         Parameters
         ----------
-        data :
-             (Default value = None)
+        data
+            Dictionary of data to fit, as the output of [`HalfLifeData.freeze()`][pyter.data.HalfLifeData.freeze].
 
         Returns
         -------
-        log_halflife, wells:
+        log_halflife wells :
             The sampled log titers and the sampled well values.
         """
 

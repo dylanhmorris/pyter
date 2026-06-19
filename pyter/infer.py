@@ -1,5 +1,5 @@
 """
-The [`Inference `][] handles all inferential tasks in Pyter.
+The [`Inference `][] module handles all inferential tasks in Pyter.
 """
 
 import attrs
@@ -18,12 +18,12 @@ class Inference:
     target_accept_prob: float = 0.8
     max_tree_depth: int = 11
     forward_mode_differentiation: bool = False
-    mcmc_runner: MCMC = None
-    kernel: NUTS = None
-    run_model: AbstractModel = None
-    _run_reparam_model: object = None
-    run_data: dict = None
-    run_rng_key: jax.random.PRNGKey = None
+    mcmc_runner: MCMC | None = None
+    kernel: NUTS | None = None
+    run_model: AbstractModel | None = None
+    _run_reparam_model: object | None = None
+    run_data: dict | None = None
+    run_rng_key: jax.random.PRNGKey | None = None
 
     def new_kernel(self, model: AbstractModel) -> NUTS:
         """
@@ -31,10 +31,12 @@ class Inference:
         Parameters
         ----------
         model
+            Model for which to instantiate an inference kernel.
 
         Returns
         -------
-
+        NUTS
+            A new NUTS inference kernel.
         """
         return NUTS(
             model,
@@ -59,7 +61,7 @@ class Inference:
 
         Returns
         -------
-        [`MCMC`][]
+        MCMC
         """
         return MCMC(
             kernel, num_warmup=num_warmup, num_samples=num_samples, **kwargs
@@ -67,14 +69,14 @@ class Inference:
 
     def infer(
         self,
-        model: AbstractModel = None,
-        data: AbstractData = None,
-        random_seed: int = None,
+        model: AbstractModel | None = None,
+        data: AbstractData | None = None,
+        random_seed: int | None = None,
         num_warmup: int = 1000,
         num_samples: int = 1000,
         validate_data: bool = True,
-        **kwargs,
-    ):
+        **kwargs: object,
+    ) -> None:
         """Conduct inference.
 
         Draw posterior samples from the
@@ -108,7 +110,7 @@ class Inference:
 
         Returns
         -------
-
+        None
         """
         self.run_model = model
         self.kernel = self.new_kernel(self.run_model.get_reparam())

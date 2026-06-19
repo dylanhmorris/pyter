@@ -25,7 +25,7 @@ def to_internal_ids(
 
     Returns
     -------
-    result
+    result:
 
         A tuple containing:
 
@@ -90,7 +90,7 @@ def validate_internal_ids(
 
     Returns
     -------
-    `None`
+    None
         on success.
 
     Raises
@@ -151,27 +151,19 @@ class AbstractData:
 
     def freeze(self):
         """
-        Validate, fix, and format data
-        for use in inference.
+        Validate, fix, and format data for use in inference.
 
-        Data is returned as a :class:`dict`
-        that can be passed to a
-        corresponding :class:`Model
-        <AbstractModel>` instance.
+        Data is returned as a [`dict`][] that can be passed to a
+        corresponding [`Model`][pyter.models.AbstractModel] instance.
 
-        The actual logic of validation
-        and data preparation is handled
-        by sub-class specific :meth:`validate`
-        and :meth:`_freeze` methods; the
-        common :meth:`freeze` method ensures
-        common data dictionary output
-        formatting across all
-        :class:`Data <AbstractData>`
-        subclasses.
+        The actual logic of validation and data preparation is handled
+        by sub-class specific `validate()` and `_freeze()` methods; the
+        common `freeze()` method ensures common data dictionary output
+        formatting across all Pyter [Data][pyter.data] classes.
 
         Returns
         -------
-        data_dict : :class:`dict`
+        data_dict :
             A dictionary of data to pass to a model.
 
         """
@@ -184,13 +176,13 @@ class AbstractData:
     def _freeze(self):
         """ """
         raise NotImplementedError(
-            "Abstract class AbstractDatahas no _freeze() method"
+            "Abstract class AbstractData has no _freeze() method"
         )
 
     def validate(self):
         """ """
         raise NotImplementedError(
-            "Abstract class AbstractDatahas no validate() method"
+            "Abstract class AbstractData has no validate() method"
         )
 
 
@@ -204,7 +196,7 @@ class NullData(AbstractData):
 
     def _freeze(self):
         """
-        Null data has no :meth:`_freeze` logic
+        Null data has no `_freeze` logic
         """
         pass
 
@@ -214,7 +206,7 @@ class NullData(AbstractData):
 
         Returns
         -------
-        :data:`True`
+        True
         """
         return True
 
@@ -241,16 +233,11 @@ class TiterData(AbstractData):
 
     def _freeze(self):
         """
-        create integer index and key from
-        unique titer IDs (which may be numeric,
-        character, etc)
-
-        Parameters
-        ----------
+        Create integer index and key from unique titer IDs (which may be numeric, character, etc)
 
         Returns
         -------
-
+        None
         """
         (
             self.well_internal_id_values["titer"],
@@ -262,11 +249,11 @@ class TiterData(AbstractData):
 
     def validate(self) -> bool:
         """
-        Null data is necessarily valid
+        No additional validation logic implemented.
 
         Returns
         -------
-        :data:`True`
+        True
         """
         return True
 
@@ -274,9 +261,7 @@ class TiterData(AbstractData):
 @attrs.define
 class HalfLifeData(AbstractData):
     """
-    Data struct
-    for inferring half-life
-    of infectious virus
+    Data struct for inferring half-life of infectious virus
     """
 
     well_status: np.ndarray = attrs.Factory(lambda: np.array([]))
@@ -310,8 +295,7 @@ class HalfLifeData(AbstractData):
 
     def update_internal_ids(self):
         """
-        Assign internal ids
-        for parameters
+        Assign internal ids for parameters
         """
 
         for param in [
@@ -403,10 +387,10 @@ class HalfLifeData(AbstractData):
 
     def validate(self) -> bool:
         """
-        Null data is necessarily valid
+        No additional validation logic implemented.
 
         Returns
         -------
-        :data:`True`
+        True
         """
         return True
