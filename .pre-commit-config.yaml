@@ -11,11 +11,11 @@ repos:
       - id: trailing-whitespace
   # Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.22
+    rev: v0.16.6
     hooks:
       - id: ruff-check
       - id: ruff-format
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.29
+    rev: 0.12.10
     hooks:
       - id: uv-lock
